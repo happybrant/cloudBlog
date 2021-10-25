@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kongfu.frontend.dao.CategoryMapper">
+
+    <sql id = "selectFields">
+        id,`name`, `order`,  `count`,parent_id,status, create_time, last_update_time
+    </sql>
+
+    <sql id = "insertFields">
+      title, content, description, status, create_time, last_update_time
+    </sql>
+
+    <!--分页查找博客-->
+    <select id = "selectCategory" resultType="Category">
+        select <include refid="selectFields"></include>
+        from category  left join
+        (SELECT article.category_id,count(*) as `count` FROM article where article.`status` = 1 GROUP BY article.category_id )as A
+        on category.id = A.category_id where category.`status` = 1
+    </select>
+
+    <!--插入/添加博客-->
+    <insert id="insertArticle" parameterType="Article" keyProperty="id">
+        insert into article (<include refid="insertFields"></include>)
+        values(#{title}, #{content}, #{description}, #{status}, #{createTime}, #{lastUpdateTime})
+    </insert>
+</mapper>

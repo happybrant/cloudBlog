@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extra/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>写博客</title>
+    <!-- favicon -->
+    <link rel="icon" th:href="@{/assets/img/user.jpg}" sizes="16x16" type="image/png" />
+    <!-- Stylesheet Link -->
+    <!--    <link rel="stylesheet" type="text/css" th:href="@{/css/global.css}" />-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/editor-md/examples/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/editor-md/css/editormd.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/bootstrap-select.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/toastr/toastr.min.new.css}" />
+
+</head>
+
+<body class="t-bg-primary mx-sidenav-not-collapsed">
+
+<!-- Preloader  -->
+<div class="preloader-container" th:replace="index::preloader"></div>
+<!-- Preloader End -->
+
+<!-- Side Nav / Display Only Small Screen  -->
+<div class="position-relative d-xl-none" th:replace="index::mobilesidenav"></div>
+<!-- Side Nav / Display Only Small Screen  End-->
+
+<!-- Page Wrapper -->
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!--SideNav / Display Only Small Screen  -->
+        <div class="col-12 d-xl-none" th:replace="index::mobileheader"></div>
+        <!--HSideNav/ Display Only Small Screen End -->
+        <!--SideNav / Display Only Large Screen  -->
+        <div class="col-3 col-xxl-2 mx-sidenav d-none d-xl-block" th:replace="index::sidenav"></div>
+        <!--SideNav / Display Only Large Screen End -->
+        <div class="col-9 col-xxl-10 flex-grow-1">
+            <div class="container-fluid px-2 px-xxl-0">
+                <div class="row g-2 g-xxl-0">
+                    <div class="col-12">
+                        <div class="mx-body">
+                            <header class="header sticky-top d-none d-xl-block" th:replace="index::bodyheader"></header>
+                            <div class="mx-body__content" data-simplebar>
+                                <main class="main-content t-mt-15 t-mb-10">
+                                    <div class="container-fluid px-3">
+                                        <div class="g-3">
+                                            <div class="col-12">
+                                                <div class="t-shadow t-bg-white t-pl-30 t-pr-30 mt-3 mb-3 py-2">
+                                                    <div class="row justify-content-center justify-conten-sm-between t-pt-20">
+                                                        <div class="col-12">
+                                                            <h3 class="mt-0 mb-sm-0 text-capitalize text-center text-sm-start">
+                                                                写博客
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="nk-container">
+                                                        <div id="layout">
+                                                            <header>
+                                                                <div class="form-group">
+                                                                    <input type="text" th:value="${article==null?'':article.title}"  class="form-control" style = "font-size: 24px; font-weight: 500;" id="article-title" placeholder="输入文章标题..." required>
+                                                                </div>
+                                                            </header>
+                                                            <div id="test-editormd">
+
+    <textarea  th:if = "${article == null}" class="form-control"  style="display:none;">
+#### Welcome to CloudBlog
+
+> Examples
+
+- TeX (Based on KaTeX);
+- Emoji;
+- Task lists;
+- HTML tags decode;
+- Flowchart and Sequence Diagram;
+
+#### Editor.md directory
+
+```java
+public static void main(String[] args) {
+System.out.println("Hello World!");
+}
+```
+
+```html
+&lt;!-- English --&gt;
+&lt;script src="../dist/js/languages/en.js"&gt;&lt;/script&gt;
+
+&lt;!-- 繁體中文 --&gt;
+&lt;script src="../dist/js/languages/zh-tw.js"&gt;&lt;/script&gt;```
+</textarea>
+<textarea  th:if = "${article != null}" th:utext="${article.content}" class="form-control"  style="display:none;">
+</textarea>
+                                                            </div>
+                                                            <div style="text-align: center">
+                                                                <button type="button" class="btn btn-outline-primary" id="confirmBtn">提交文章</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </main>
+                                <footer th:replace="index::footer"></footer>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 选择分类、标签 -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:45%" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="categoryBody">
+                <div class="row">
+                    <div class="col-md-4 col-xl-3">
+                        <div class="form-group form-control__select form-control__select-clear form-control__select-primary">
+                            <p class="common-title necessary">博客分类</p>
+                            <select class="w-100 mx-select">
+                                <option  th:each="category:${categories}" th:value="${category.id}"  th:utext="${category.name}"></option>
+                                <option th:if="${rootCategory != null}" th:value="${rootCategory.id}" th:utext="${rootCategory.name}" selected></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xl-3">
+                        <div class="form-group form-control__select form-control__select-clear form-control__select-primary">
+                            <p class="common-title">子类别</p>
+                            <select th:if="${childrenCategory == null}" class="w-100 mx-select disabled" >
+                                <option data-display="0" value="0">请选择子分类</option>
+                            </select>
+                            <select th:if="${childrenCategory != null}" class="w-100 mx-select">
+                                <option data-display="0" value="0">请选择子分类</option>
+                                <option th:value="${childrenCategory.id}" th:utext="${childrenCategory.name}" selected></option>
+                                <option  th:each="category:${childrenCategories}" th:value="${category.id}"  th:utext="${category.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-xl-2">
+                        <div class="form-group form-control__select form-control__select-clear form-control__select-primary">
+                            <p class="common-title">文章标签</p>
+                            <select  th:if="${article != null && article.tags != null}"   class="selectpicker" data-live-search="true" multiple data-max-options="2">
+                                <option  th:each="selectTag:${article.tags}" th:value="${selectTag.id}"  th:utext="${selectTag.name}" selected></option>
+                                <option  th:each="tag:${tags}" th:value="${tag.id}"  th:utext="${tag.name}"></option>
+                            </select>
+                            <select th:if="${article == null}"  class="selectpicker" data-live-search="true" multiple data-max-options="2">
+                                <option  th:each="tag:${tags}" th:value="${tag.id}"  th:utext="${tag.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px">
+                    <p class="common-title necessary">文章摘要</p>
+                    <div class="form-group">
+                        <input th:value="${article == null?'':article.description}" type="text" class="form-control" style = "font-size: 18px; font-weight: 200;" id="article-desc" placeholder="输入文章摘要..." required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-info" id="saveBtn">
+                    保存
+                </button>
+                <button type="button" class="btn btn-primary" id="publishBtn">
+                    发布
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Wrapper End -->
+
+<!-- jquery -->
+<script th:src="@{/assets/js/jquery.js}"></script>
+<script th:src="@{/assets/js/jquery-ui.min.js}"></script>
+<!-- Date and Time  -->
+<script th:src="@{/assets/js/moment.js}"></script>
+<script th:src="@{/assets/js/bootstrap-material-datetimepicker.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap-select.min.js}"></script>
+<!-- Slick Slider  -->
+<script th:src="@{/assets/js/slick.min.js}"></script>
+<!-- Owl carousel -->
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<!-- simplebar -->
+<script th:src="@{/assets/js/simplebar.js}"></script>
+<!-- Prism JS  -->
+<script th:src="@{/assets/js/prism.js}"></script>
+<!-- Feather Icon  -->
+<script th:src="@{/assets/js/feather.js}"></script>
+<!-- Nice Select  -->
+<script th:src="@{/assets/js/jquery.nice-select.min.js}"></script>
+<!-- Dropzone  -->
+<script th:src="@{/assets/js/dropzone.js}"></script>
+<!-- ION Range Slider  -->
+<script th:src="@{/assets/js/ion.rangeSlider.js}"></script>
+<!-- Touchspin  -->
+<script th:src="@{/assets/js/jquery.bootstrap-touchspin.min.js}"></script>
+<!-- Rating Bar -->
+<script th:src="@{/assets/js/jquery.barrating.min.js}"></script>
+<!-- Calendar  -->
+<script th:src="@{/assets/js/fullcalendar.min.js}"></script>
+<!-- Main script -->
+<script th:src="@{/assets/js/main.js}"></script>
+<script th:src="@{/editor-md/editormd.min.js}"></script>
+<!-- toastr script -->
+<script th:src="@{/toastr/toastr.min.js}"></script>
+<script type="text/javascript">
+    $(function() {
+        toastr.options.positionClass = "toast-top-center";// 提示框，顶部中间显示。如果需要居中，请使用：toast-center-center
+        let testEditor = editormd("test-editormd", {
+            width   : "100%",
+            height  : 640,
+            syncScrolling : "single",
+            path    : "/editor-md/lib/",
+            saveHTMLToTextarea : true, // 这个配置，方便 post 提交表单
+
+            /**上传图片相关配置如下*/
+            imageUpload : true,
+            imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL : "/discuss/uploadMdPic",// 后端上传图片的服务地址
+            onload : function() {
+                //console.log('onload', this);
+                //this.fullscreen();
+                //this.unwatch();
+                //this.watch().fullscreen();
+
+                //this.setMarkdown("#PHP");
+                //this.width("100%");
+                //this.height(480);
+                //this.resize("100%", 640);
+            }
+        });
+
+        //设置多选框宽度
+        $(".selectpicker").selectpicker({ width: 180 });
+
+
+        //点击父分类，展开子分类
+        $(".mx-select:eq(1)").find(".list li").on("click",ShowChildrenCategory)
+
+        //展示子分类
+        function ShowChildrenCategory() {
+            let $select = $(".mx-select:eq(2)");
+            let $list = $(".mx-select:eq(3)");
+            //清空原子分类选项
+            $select.find("option:gt(0)").remove();
+            $list.find(".list li:gt(0)").remove();
+            //将当前选中分类改为全部
+            $list.find(".current").text("请选择子分类");
+            let rootCategory =   $(this).data("display") ||  $(this).text();
+            if(rootCategory != "请选择父分类"){
+                $.ajax({
+                    type:"GET",
+                    url:"/category/getChildrenCategories/" + rootCategory,
+                    dataType:"json",
+                    success:function(res){
+                        if(res.retCode === 1){
+                            let categories = res.data;
+                            if(categories.length > 0){
+                                //将子分类设为可选择
+                                $select.removeClass("disabled");
+                                $list.removeClass("disabled");
+                                //将子分类添加到选项中
+                                $.map(categories,function(value,index){
+                                    $select.append("<option value="+ value.id + ">"+ value.name +"</option>");
+                                    $list.find(".list").append("<li data-value='"+ value.id + "'class = 'option'>"+ value.name +"</li>");
+                                })
+                            }else{
+                                //提示用户当前父分类下无子分类
+                                $list.find(".current").text("无子分类");
+                                //将子分类设为不可选择
+                                $select.addClass("disabled");
+                                $list.addClass("disabled");
+                            }
+                        }else{
+                            console.log("没有获取子分类")
+                        }
+                    },
+                    error:function(jqXHR){
+                        console.log("Error: "+jqXHR.status);
+                    }
+                })
+            }else{
+                //将子分类设为不可选择
+                $select.addClass("disabled");
+                $list.addClass("disabled");
+            }
+        }
+        //点击提交文章按钮
+        $("#confirmBtn").on("click",function () {
+            // 获取标题
+            let title = $("#article-title").val();
+            //内容
+            let content = $("textarea").val();
+            if(title.trim() == ""){
+                toastr.warning("文章标题不能为空！");
+                return;
+            }
+            if(content.trim().length < 5){
+                toastr.warning("文章内容不能少于5个字符！");
+                return;
+            }
+            $("#categoryModal").modal('show');
+        })
+
+        //点击发布按钮
+        $("#publishBtn").on("click",{"status":1},publish);
+        //debugger;
+        //点击保存按钮
+        $("#saveBtn").on("click",{"status":2},publish);
+        //发布/暂存文章--1为发布，2为暂存
+        function publish(event) {
+            let status = event.data.status;
+            // 获取标题
+            let title = $("#article-title").val();
+            //内容
+            let content = $("textarea").val();
+            //摘要
+            let desc = $("#article-desc").val();
+            //父分类
+            let rootCategory = $(".mx-select:eq(0)").val();
+            //子分类
+            let childrenCategory = $(".mx-select:eq(2)").val();
+            let category = childrenCategory == "0"?(rootCategory == "0" ? "all" : rootCategory) : childrenCategory;
+            //标签
+            let tags = $(".selectpicker").val();
+            let url = "/article/add/" + status;
+
+            if(rootCategory.trim() == "0"){
+                toastr.warning("请选择父分类！");
+                return;
+            }
+            if(desc.trim() == ""){
+                toastr.warning("请输入文章摘要！");
+                return;
+            }
+            // 发送异步请求
+            $.post({
+                url: url,
+                data: {
+                    "title": title,
+                    "description": desc,
+                    "content": content,
+                    "categoryId": category,
+                    "tagIds": tags
+                },
+                // 处理服务端返回的数据
+                success:function(data) {
+                    $("#categoryModal").modal('hide')
+                    // String -> Json 对象
+                    data = $.parseJSON(data);
+                    // 展示提示信息
+                    toastr.success(data.msg);
+                    // 发布成功后，跳转到列表页面
+                    location.href = "/article/list";
+                },
+                error: function(){
+                    toastr.error("请求失败")
+                }
+            })
+        }
+    });
+</script>
+</body>
+
+</html>

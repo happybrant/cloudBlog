@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extra/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cloudBlog - 404</title>
+    <!-- favicon -->
+    <link rel="icon" th:href="@{/assets/img/user.jpg}" sizes="16x16" type="image/png" />
+
+    <!-- Stylesheet Link -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}" />
+
+</head>
+
+<body class="t-bg-primary mx-sidenav-not-collapsed">
+
+<!-- Preloader  -->
+<div class="preloader-container" th:replace="index::preloader"></div>
+<!-- Preloader End -->
+
+<!-- Side Nav / Display Only Small Screen  -->
+<div class="position-relative d-xl-none" th:replace="index::mobilesidenav"></div>
+<!-- Side Nav / Display Only Small Screen  End-->
+
+<!-- Page Wrapper -->
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!--SideNav / Display Only Small Screen  -->
+        <div class="col-12 d-xl-none" th:replace="index::mobileheader"></div>
+        <!--HSideNav/ Display Only Small Screen End -->
+        <!--SideNav / Display Only Large Screen  -->
+        <div class="col-3 col-xxl-2 mx-sidenav d-none d-xl-block" th:replace="index::sidenav"></div>
+        <!--SideNav / Display Only Large Screen End -->
+        <div class="col-9 col-xxl-10 flex-grow-1">
+            <div class="container-fluid px-2 px-xxl-0">
+                <div class="row g-2 g-xxl-0">
+                    <div class="col-12">
+                        <div class="mx-body">
+                            <header class="header sticky-top d-none d-xl-block" th:replace="index::bodyheader"></header>
+                            <div class="mx-body__content" data-simplebar>
+                                <main class="main-content t-mt-15 t-mb-0">
+                                    <div class="container-fluid px-3">
+                                        <div class="g-3">
+                                            <div class="col-12">
+                                                <div class="t-shadow t-bg-white t-pl-30 t-pr-30 mt-3 mb-3 py-2">
+                                                    <img style="width: 100%;height: 100%" th:src="@{/img/404.png}" >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </main>
+                                <footer th:replace="index::footer"></footer>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page Wrapper End -->
+<!--删除提醒框-->
+<div class="modal fade show" id="modal-deleteSure" aria-modal="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">提示</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>删除后数据不可恢复，确定删除？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="deleteSure();">确定</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- jquery -->
+<script th:src="@{/assets/js/jquery.js}"></script>
+<script th:src="@{/assets/js/jquery-ui.min.js}"></script>
+<!-- Bootstrap -->
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+<!-- Date and Time  -->
+<script th:src="@{/assets/js/moment.js}"></script>
+<script th:src="@{/assets/js/bootstrap-datetimepicker.js}"></script>
+<script th:src="@{/assets/js/bootstrap-datetimepicker.zh-CN.js}"></script>
+<!-- Slick Slider  -->
+<script th:src="@{/assets/js/slick.min.js}"></script>
+<!-- Owl carousel -->
+<script th:src="@{/assets/js/owl.carousel.min.js}"></script>
+<!-- simplebar -->
+<script th:src="@{/assets/js/simplebar.js}"></script>
+<!-- Prism JS  -->
+<script th:src="@{/assets/js/prism.js}"></script>
+<!-- Feather Icon  -->
+<script th:src="@{/assets/js/feather.js}"></script>
+<!-- Nice Select  -->
+<script th:src="@{/assets/js/jquery.nice-select.min.js}"></script>
+<!-- Dropzone  -->
+<script th:src="@{/assets/js/dropzone.js}"></script>
+<!-- ION Range Slider  -->
+<script th:src="@{/assets/js/ion.rangeSlider.js}"></script>
+<!-- Touchspin  -->
+<script th:src="@{/assets/js/jquery.bootstrap-touchspin.min.js}"></script>
+<!-- Rating Bar -->
+<script th:src="@{/assets/js/jquery.barrating.min.js}"></script>
+<!-- Calendar  -->
+<script th:src="@{/assets/js/fullcalendar.min.js}"></script>
+<!-- Main script -->
+<script th:src="@{/assets/js/main.js}"></script>
+<!-- Table -->
+<script th:src="@{/assets/js/bootstrap-table.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap-table-zh-CN.min.js}"></script>
+<!-- toastr script -->
+<script th:src="@{/toastr/toastr.min.js}"></script>
+<script>
+    $(function () {
+        toastr.options.positionClass = "toast-top-center";// 提示框，顶部中间显示。如果需要居中，请使用：toast-center-center
+        $('.form_datetime').datetimepicker({
+            language:  'zh-CN',
+            format: 'yyyy-mm-dd',
+            todayHighlight: 1,
+            weekStart: 1,
+            minView: 'month',
+            autoclose: true,
+            clearBtn: true,
+            endDate: new Date(),
+        });
+        //文章列表
+        let ArticleTable = function () {
+            let oArticleTable = new Object();
+            oArticleTable.TableID = "#article-table";
+            oArticleTable.Options = {
+                method: 'get',
+                toolbar: '#toolbar',    //工具按钮用哪个容器
+                striped: true,      //是否显示行间隔色
+                cache: false,      //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,     //是否显示分页（*）
+                paginationLoop: false,
+                sidePagination: "server",
+                uniqueId: "id",
+                sortable: false,      //是否启用排序
+                sortOrder: "asc",     //排序方式
+                pageNumber:1,      //初始化加载第一页，默认第一页
+                pageSize: 10,      //每页的记录行数（*）
+                pageList: [10, 15, 20 ],  //可供选择的每页的行数（*）
+                url: "/article/getArticleList",//这个接口需要处理bootstrap table传递的固定参数
+                columns: [{
+                    field: 'id',
+                    title: 'id',
+                    align: 'center',
+                    width: '50',
+                    formatter: function (value, row, index) {
+                        let pageSize = $(oArticleTable.TableID).bootstrapTable("getOptions").pageSize;
+                        let pageNumber = $(oArticleTable.TableID).bootstrapTable("getOptions").pageNumber;
+                        return pageSize * (pageNumber - 1) + index + 1;
+                    }
+                }, {
+                    field: 'title',
+                    title: '标题',
+                    align: 'center',
+                    formatter:function (value) {
+                        if(value.length > 30){
+                            return "<div data-toggle='tooltip' data-placement='top' title='" + value +"'>"+ value.substr(0, 30) +"...</div>";
+                        }
+                        else return value;
+                    }
+                }, {
+                    field: 'path',
+                    title: '分类',
+                    align: 'center',
+                    width: '200',
+                    formatter:function(value){
+                        return value.substr(1);
+                    }
+                },{
+                    field: 'tags',
+                    title: '标签',
+                    align: 'center',
+                    width: '180',
+                    formatter:function(value){
+                        let tag = "";
+                        if(value == ""){
+                            return "-"
+                        }else{
+                            $.map(value,function(value,index){
+                                tag += "<div id='tag' style='transform: scale(0.8); margin: 0 auto;'>"+value.name+"</div>";
+                            })
+                            return tag;
+                        }
+                    }
+                },{
+                    field: 'createTime',
+                    title: '创建时间',
+                    align: 'center',
+                    width: '200px',
+                    formatter:function(value){
+                        return value.substr(0, value.length - 2);
+                    }
+                },{
+                    field: 'status',
+                    title: '是否发布',
+                    align: 'center',
+                    width: '120',
+                    formatter:function(value){
+                        return value == "1" ? "<button type='button' class='btn btn-transparent btn-info sm-text' style='pointer-events:none;'>已发布</button>":
+                            "<button type='button' class='btn btn-transparent btn-dark sm-text' style='pointer-events:none;'>未发布</button>";
+                    }
+                },{
+                    field: 'id',
+                    title: '操作',
+                    align: 'center',
+                    width: '120',
+                    formatter: btnGroup
+                }]
+            };
+            oArticleTable.Init = function () {
+                let self = this;
+                //表格初始化
+                $(self.TableID).bootstrapTable(self.Options);
+                //查询
+                $("#query-btn").on("click", function () {
+                    self.Query();
+                })
+                //重置
+                $("#reset-btn").on("click", function () {
+                    self.Reset();
+                });
+            };
+            //查询
+            oArticleTable.Query = function () {
+                let self = this;
+                $(self.TableID).bootstrapTable('load', []);//清空表格数据
+                let articleTitle = $("#article-title").val();
+                let rootCategory = $(".mx-select:eq(0)").val();
+                let childrenCategory = $(".mx-select:eq(2)").val();
+                let tag = $(".mx-select:eq(4)").val() == "请选择标签" ? "all" : $(".mx-select:eq(4)").val();
+                let createDate = $(".form_datetime").find("input").val() == "" ? "all" : $(".form_datetime").find("input").val();
+                let category = childrenCategory == "请选择子分类"?(rootCategory == "请选择父分类" ? "all" : rootCategory) : childrenCategory;
+                let url = self.Options.url;
+                url += "?title=" + articleTitle;
+                url += "&category=" + category;
+                url += "&tag=" + tag;
+                url += "&createDate=" + createDate;
+                $("#article-table").bootstrapTable("refresh", { url: url, pageNumber: 1 });
+            };
+            //重置
+            oArticleTable.Reset = function () {
+                let self = this;
+                $(".mx-select:eq(0)").val("请选择父分类");
+                $(".mx-select:eq(2)").val("请选择子分类");
+                $(".form_datetime").find("input").val("");
+                $("#article-title").val("");
+                let url = self.Options.url;
+                $(self.TableID).bootstrapTable("refresh", { url: url, pageNumber: 1 });
+            };
+            return oArticleTable;
+        }
+        //初始化表格
+        let oArticleTable = new ArticleTable();
+        oArticleTable.Init();
+        //点击父分类，展开子分类
+        $(".mx-select:eq(1)").find(".list li").on("click",ShowChildrenCategory)
+
+        //展示子分类
+        function ShowChildrenCategory() {
+            let $select = $(".mx-select:eq(2)");
+            let $list = $(".mx-select:eq(3)");
+            //清空原子分类选项
+            $select.find("option:gt(0)").remove();
+            $list.find(".list li:gt(0)").remove();
+            //将当前选中分类改为全部
+            $list.find(".current").text("请选择子分类");
+            let rootCategory =   $(this).data("display") ||  $(this).text();
+            if(rootCategory != "请选择父分类"){
+                $.ajax({
+                    type:"GET",
+                    url:"/category/getChildrenCategories/" + rootCategory,
+                    dataType:"json",
+                    success:function(res){
+                        if(res.retCode === 1){
+                            let categories = res.data;
+                            if(categories.length > 0){
+                                //将子分类设为可选择
+                                $select.removeClass("disabled");
+                                $list.removeClass("disabled");
+                                //将子分类添加到选项中
+                                $.map(categories,function(value,index){
+                                    $select.append("<option value="+ value.name + ">"+ value.name +"</option>");
+                                    $list.find(".list").append("<li data-value='"+ value.name + "'class = 'option'>"+ value.name +"</li>");
+                                })
+                            }else{
+                                //提示用户当前父分类下无子分类
+                                $list.find(".current").text("无子分类");
+                                //将子分类设为不可选择
+                                $select.addClass("disabled");
+                                $list.addClass("disabled");
+                            }
+                        }else{
+                            console.log("没有获取子分类")
+                        }
+                    },
+                    error:function(jqXHR){
+                        console.log("Error: "+jqXHR.status);
+                    }
+                })
+            }else{
+                //将子分类设为不可选择
+                $select.addClass("disabled");
+                $list.addClass("disabled");
+            }
+        }
+        function btnGroup(value, row, index) {
+            return '<a href="#" class="t-link t-link--alpha">'+
+                '   <span class="xlg-text t-mr-5">' +
+                '       <i class="las la-eye" title="查看"></i>' +
+                '   </span>' +
+                '</a>' +
+                '<a href="#" class="t-link t-link--alpha" onclick="OpenEditDialog(\'' + row.id + '\')">'+
+                '   <span class="xlg-text t-mr-5">' +
+                '       <i class="las la-edit" title="编辑"></i>' +
+                '   </span>' +
+                '</a>' +
+                '<a href="#" class="t-link t-link--alpha" onclick="OpenDeleteDialog(\'' + row.id + '\')">'+
+                '   <span class="xlg-text t-mr-5">' +
+                '       <i class="las la-trash" title="删除"></i>' +
+                '</span>' +
+                '</a>';
+        }
+        // 移除数据，移除保存的id
+        $("#modal-deleteSure").on('hidden.bs.modal', function (e) {
+            $(this).removeData("bs.modal");
+            $(this).removeData("deleteid");
+        });
+    })
+
+    // 打开删除确认框
+    function OpenDeleteDialog(id) {
+        $('#modal-deleteSure').data("deleteId", id);
+
+        $('#modal-deleteSure').modal({
+            keyboard: false,
+            show: true
+        });
+    }
+    function deleteSure() {
+        let id = $('#modal-deleteSure').data("deleteId");
+        $.ajax({
+            type: "get",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: "/article/delete/" + id,
+            success: function (res) {
+                $('#modal-deleteSure').modal("hide");
+                if (res.code == "0") {
+                    // 显示服务端返回的消息
+                    toastr.warning(res.retMsg);
+                } else {
+                    toastr.success(res.retMsg);
+                    $("#article-table").bootstrapTable("refresh");
+                }
+            },
+            error: function(){
+                $('#modal-deleteSure').modal("hide");
+                toastr.error("请求失败")
+            }
+        });
+    }
+    // 点击编辑按钮
+    function OpenEditDialog(id) {
+        location.href = "/article/edit/" + id;
+    }
+
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kongfu.backend.dao.TagMapper">
+
+    <!--查找所有标签及其对应的博客数量-->
+    <select id = "selectTagCategory" resultType="Tag">
+        select  A.`name`,A.`order`,count(*) as `count`
+        from (
+        select article_tag.*,tag.name,tag.`order`
+        from article_tag
+        left join tag on tag.id = article_tag.tag_id
+        where tag.`status` = 1) as A
+        group by A.`name`,A.`order`
+        ORDER BY A.`order`
+    </select>
+
+    <!--查找所有标签的数量-->
+    <select id = "selectTagCount" resultType="int">
+        select  count(*) from tag where `status` = 1
+    </select>
+
+    <!--分页查找标签-->
+    <select id = "selectTags" resultType="Tag">
+        select  * from tag where `status` = 1 order  by `order` limit #{offset},#{limit}
+    </select>
+
+    <!--插入/添加博客-->
+    <insert id="insertTagArticle" parameterType="TagArticle" keyProperty="id">
+        insert into article_tag (article_id,tag_id)
+        values
+        <foreach collection="tagArticles" item="item" index="index" separator=",">
+            (#{item.articleId},#{item.tagId})
+        </foreach>
+    </insert>
+</mapper>

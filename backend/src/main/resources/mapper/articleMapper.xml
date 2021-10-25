@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kongfu.backend.dao.ArticleMapper">
+
+    <sql id = "selectFields">
+        A.id, title, content, description, A.status, path,A.create_time, A.last_update_time,tag_id,name
+    </sql>
+
+    <sql id = "insertFields">
+      title, content, description,category_id, status, create_time, last_update_time
+    </sql>
+
+    <resultMap type="Article" id="articleResultMap">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="path" property="path"/>
+        <collection property="tags" ofType="Tag">
+            <id column="tag_id" property="id"/>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+    <!--分页查找博客-->
+    <select id = "selectArticle" resultMap="articleResultMap">
+        select  <include refid="selectFields"></include>
+        from (
+        select article.*, category.path
+        from article
+        left join category ON article.category_id = category.id
+        where article.status != 0
+        <if test = "!category.equals('all')">
+            and article.category_id = (select id from category where name = #{category})
+            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        </if>
+        <if test = "!createDate.equals('all')">
+            and date_format(article.create_time,'%Y-%m-%d') = #{createDate}
+        </if>
+        <if test = "!tag.equals('all')">
+            and article.id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        </if>
+        <if test = "!title.equals('')">
+            and article.title like "%"#{title}"%"
+        </if>
+        order by article.create_time desc
+        limit #{offset}, #{limit}
+        ) AS A
+        left join article_tag ON A.id = article_tag.article_id
+        left join tag ON article_tag.tag_id  = tag.id
+        and tag.`status` != 0 or tag.`status` is null
+    </select>
+    <!--查找博客总数-->
+    <select id = "selectArticleCount" resultType="java.lang.Integer">
+        select count(*)
+        from article
+        where status != 0
+        <if test = "!category.equals('all')">
+            and article.category_id = (select id from category where name = #{category})
+            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        </if>
+        <if test = "!createDate.equals('all')">
+            and date_format(create_time,'%Y-%m-%d') = #{createDate}
+        </if>
+        <if test = "!tag.equals('all')">
+            and id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        </if>
+        <if test = "!title.equals('')">
+            and article.title like "%"#{title}"%"
+        </if>
+    </select>
+    <!--根据博客id查找博客-->
+    <select id = "selectArticleById" parameterType="int" resultMap="articleResultMap">
+        select  <include refid="selectFields"></include>
+        from (
+        select article.*, category.path
+        from article
+        left join category ON article.category_id = category.id
+        where article.status != 0
+        and article.id=#{id}
+        ) AS A
+        left join article_tag ON A.id = article_tag.article_id
+        left join tag ON article_tag.tag_id  = tag.id
+        and tag.`status` != 0 or tag.`status` is null
+    </select>
+
+    <!--插入/添加博客-->
+    <insert id="insertArticle" parameterType="Article" keyProperty="id">
+        insert into article (<include refid="insertFields"></include>)
+        values(#{title}, #{content}, #{description}, #{categoryId}, #{status}, now(), now())
+    </insert>
+
+    <!--修改博客状态：1-正常; 0-删除;-->
+    <update id="updateStatus">
+        update article
+        set status = #{status}
+        where id = #{id}
+    </update>
+</mapper>

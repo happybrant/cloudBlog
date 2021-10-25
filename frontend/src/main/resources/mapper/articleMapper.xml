@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kongfu.frontend.dao.ArticleMapper">
+
+    <sql id = "selectFields">
+        id, title, content, description, status, path,create_time, last_update_time
+    </sql>
+
+    <sql id = "insertFields">
+      title, content, description,category_id, status, create_time, last_update_time
+    </sql>
+
+    <!--分页查找博客-->
+    <select id = "selectArticle" resultType="Article">
+        select article.*, category.path
+        from article left join category on article.category_id = category.id
+        where article.status != 2
+        <if test = "!category.equals('all')">
+            and article.category_id in (select id from category where name = #{category})
+            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        </if>
+        <if test = "!createDate.equals('all')">
+            and date_format(article.create_time,'%Y-%m') = #{createDate}
+        </if>
+        <if test = "!tag.equals('all')">
+            and article.id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        </if>
+        order by article.create_time desc
+        limit #{offset}, #{limit}
+    </select>
+    <!--查找博客总数-->
+    <select id = "selectArticleCount" resultType="java.lang.Integer">
+        select count(*)
+        from article
+        where status != 2
+        <if test = "!category.equals('all')">
+            and category_id in (select id from category where name = #{category})
+            or category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        </if>
+        <if test = "!createDate.equals('all')">
+            and date_format(create_time,'%Y-%m') = #{createDate}
+        </if>
+        <if test = "!tag.equals('all')">
+            and id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        </if>
+    </select>
+    <!--分页查找博客-->
+    <select id = "selectArticleById" resultType="Article">
+        select article.*, category.path
+        from article left join category on article.category_id = category.id
+        where article.status != 2 and article.id = #{id}
+    </select>
+
+    <!--插入/添加博客-->
+    <insert id="insertArticle" parameterType="Article" keyProperty="id">
+        insert into article (<include refid="insertFields"></include>)
+        values(#{title}, #{content}, #{description}, #{categoryId}, 1, now(), now())
+    </insert>
+</mapper>

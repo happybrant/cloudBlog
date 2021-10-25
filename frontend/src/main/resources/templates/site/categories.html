@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extra/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bulma.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+    <link rel="icon" href="https://supermartin.cn/static/images/logo.png">
+    <link rel="stylesheet" href="/css/back-to-top.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+</head>
+<body class="is-2-column  pace-done"><div id="MathJax_Message" style="display: none;"></div><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
+    <div class="pace-progress-inner"></div>
+</div>
+    <div class="pace-activity"></div></div>
+<!--导航-->
+<nav class="navbar navbar-main" th:replace="index::navbar" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform: translateY(0px);">
+</nav>
+<section class="section" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1;">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-9-tablet is-9-desktop is-9-widescreen has-order-2 column-main">
+                <!--分类-->
+                <div class="card widget" th:replace="index::categories" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform-origin: center top;"></div>
+            </div>
+            <div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+                <!--个人名片-->
+                <div class="card widget" th:replace="index::personalcard" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform-origin: center top;"></div>
+                <!--分类-->
+                <div class="card widget" th:replace="index::categories" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform-origin: center top;"></div>
+                <!-- 归档-->
+                <div class="card widget" th:replace="index::archives" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform-origin: center top;"></div>
+                <!--标签-->
+                <div class="card widget" th:replace="index::tags" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1; transform-origin: center top;"></div>
+                <div class="column-right-shadow is-hidden-widescreen ">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="footer" th:replace="index::footer" style="transition: opacity 0.3s ease-out 0s, transform 0.3s ease-out 0s; opacity: 1;"></footer>
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/back-to-top.js}"></script>
+<link rel="stylesheet" type="text/css" th:href="@{/css/search.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/css/insight.css}" />
+<div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"><section class="ins-section"><header class="ins-section-header">文章</header><div class="ins-selectable ins-search-item" data-url="/java_spring_12/"><header><i class="fa fa-file"></i><span class="ins-title">Spring源码分析(12)——Spring常用调试断点和方法</span></header><p class="ins-search-preview">在分析Spring相关源码时，或者优化Spring启动过程时，可能能够用到的一些调试的断点的位置。 容器的创建 Spring ApplicationContext容器类型为：XmlWebApplicationContext，来自web.xml文件中配置的ContextLoaderListener，默</p></div><div class="ins-selectable ins-search-item" data-url="/java_spring_11/"><header><i class="fa fa-file"></i><span class="ins-title">Spring源码分析(11)——SpringBoot源码</span></header><p class="ins-search-preview">对SpringBoot源码的一些浅析。 SpringBoot的启动方式很简单，本文也是从以下代码入手 MyApplication.java123456@SpringBootApplicationpublic class MyApplication { public static void main(</p></div><div class="ins-selectable ins-search-item" data-url="/java_spring_10/"><header><i class="fa fa-file"></i><span class="ins-title">Spring源码分析(10)——SpringMVC参数绑定和返回值解析</span></header><p class="ins-search-preview">HTTP请求到达Controller层时，需要将请求中的参数转换成java可识别的参数，等Controller处理完成后，又需要将java的返回值转换为HTTP内容返回给用户。 先回顾SpringMVC调用Controller的入口位置，这里会调用HandlerAdapter，让HandlerAda</p></div><div class="ins-selectable ins-search-item" data-url="/java_spring_9/"><header><i class="fa fa-file"></i><span class="ins-title">Spring源码分析(9)——SpringMVC九大组件</span></header><p class="ins-search-preview">SpringMVC的核心是九大组件，是这九大组件完成了SpringMVC主流程。 一、九大组件的初始化先来回顾一下DIspatcherServlet的初始化过程： 1）寻找或创建一个新的SpringMVC容器 2）创建SpringMVC容器，并调用refresh来初始化容器 3）调用onRefres</p></div><div class="ins-selectable ins-search-item" data-url="/java_spring_8/"><header><i class="fa fa-file"></i><span class="ins-title">Spring源码分析(8)——SpringMVC的请求流转和拦截器处理过程</span></header><p class="ins-search-preview">当一个HTTP请求到达SpringMVC时，SpringMVC是怎么处理这个请求的呢？SpringMVC拦截器中三个preHandle、postHandle和afterCompletion方法的处理过程又是怎样的呢？ 一、SpringMVC的请求流转图下图是网上到处都能找到的SpringMVC的请求</p></div></section><section class="ins-section"><header class="ins-section-header">页面</header><div class="ins-selectable ins-search-item" data-url="/about/index.html"><header><i class="fa fa-file"></i><span class="ins-title">关于我</span></header><p class="ins-search-preview">简介我，网络自称Martin。 主要技术方向为Java EE，对Java技术栈比较了解。 平时只有几个爱好：计算机、游泳、骑行、旅游、健身。 个人项目 美团点评-快驴进货技术：SpringBoot时间：2017.11~ 京东消费金融平台技术：SpirngMVC+MyBatis+ElasticSear</p></div><div class="ins-selectable ins-search-item" data-url="/about/s-s.html"><header><i class="fa fa-file"></i><span class="ins-title">科-学-上-网</span></header><p class="ins-search-preview">Windows科学上网1、点击链接下载windows客户端 2、下载解压之后打开，在桌面右下角有一个小飞机图标 3、鼠标右键单击这个小飞机，选择服务器、编辑服务器 4、按照如图所示，输入服务器地址”66.112.214.223”，服务器端口“9999”，密码“supermartin”，加密方式“ae</p></div><div class="ins-selectable ins-search-item" data-url="/ss.html"><header><i class="fa fa-file"></i><span class="ins-title">翻墙之搭建自己的VPN</span></header><p class="ins-search-preview">本文介绍了SS影梭的翻墙部署方法，简单实用，再也不用麻烦使用别人的VPN了。 SS介绍由于众所周知的原因，Google、Facebook、Twitter等不受tg控制的网站在国内是无法访问的，但是，我们又时常需要上去查一些资料，这可如何是好呢！ SS全名Shadowsocks，是一款开源的科学上网神</p></div><div class="ins-selectable ins-search-item" data-url="/google-hosts.html"><header><i class="fa fa-file"></i><span class="ins-title">不用出钱就能翻墙，随意访问Google和Facebook</span></header><p class="ins-search-preview">本文只介绍免费的翻墙方法，只需要简单几步就能实现访问Google、Facebook、Twitter等被封锁的网站。 博主有话说由于众所周知的原因，Google、Facebook、Twitter等不受tg控制的网站在国内是无法访问的，但是，我们又时常需要上去查一些资料，这可如何是好呢！没事，我来教你免</p></div></section><section class="ins-section"><header class="ins-section-header">分类</header><div class="ins-selectable ins-search-item" data-url="/categories/软件下载/"><header><i class="fa fa-folder"></i><span class="ins-title">软件下载</span><span class="ins-slug">软件下载</span></header></div><div class="ins-selectable ins-search-item" data-url="/categories/资源下载/"><header><i class="fa fa-folder"></i><span class="ins-title">资源下载</span><span class="ins-slug">资源下载</span></header></div><div class="ins-selectable ins-search-item" data-url="/categories/软件下载/Adobe/"><header><i class="fa fa-folder"></i><span class="ins-title">Adobe</span><span class="ins-slug">软件下载/Adobe</span></header></div><div class="ins-selectable ins-search-item" data-url="/categories/软件下载/Office/"><header><i class="fa fa-folder"></i><span class="ins-title">Office</span><span class="ins-slug">软件下载/Office</span></header></div><div class="ins-selectable ins-search-item" data-url="/categories/软件下载/其他软件/"><header><i class="fa fa-folder"></i><span class="ins-title">其他软件</span><span class="ins-slug">软件下载/其他软件</span></header></div></section><section class="ins-section"><header class="ins-section-header">标签</header><div class="ins-selectable ins-search-item" data-url="/tags/Adobe/"><header><i class="fa fa-tag"></i><span class="ins-title">Adobe</span><span class="ins-slug">Adobe</span></header></div><div class="ins-selectable ins-search-item" data-url="/tags/视频剪辑/"><header><i class="fa fa-tag"></i><span class="ins-title">视频剪辑</span><span class="ins-slug">视频剪辑</span></header></div><div class="ins-selectable ins-search-item" data-url="/tags/AutoCAD/"><header><i class="fa fa-tag"></i><span class="ins-title">AutoCAD</span><span class="ins-slug">AutoCAD</span></header></div><div class="ins-selectable ins-search-item" data-url="/tags/视频资源/"><header><i class="fa fa-tag"></i><span class="ins-title">视频资源</span><span class="ins-slug">视频资源</span></header></div><div class="ins-selectable ins-search-item" data-url="/tags/Office/"><header><i class="fa fa-tag"></i><span class="ins-title">Office</span><span class="ins-slug">Office</span></header></div></section></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
