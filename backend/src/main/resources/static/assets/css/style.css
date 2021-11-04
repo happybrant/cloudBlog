@@ -134,7 +134,7 @@
 /*---------------------------------------
     0.0 Vendor Style
 -----------------------------------------*/
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+/*@import url("https://fonts.googleapis.com/icon?family=Material+Icons");*/
 /*---------------------------------------
     0.1 Bootstrap 
 -----------------------------------------*/
@@ -2777,15 +2777,15 @@ textarea.form-control-lg {
     border-color: #ff9f43; }
 
 .btn-danger {
-  color: #000;
+  color: #fff;
   background-color: #f75b60;
   border-color: #f75b60; }
   .btn-danger:hover {
-    color: #000;
+    color: #fff;
     background-color: #f87478;
     border-color: #f86b70; }
   .btn-check:focus + .btn-danger, .btn-danger:focus {
-    color: #000;
+    color: #fff;
     background-color: #f87478;
     border-color: #f86b70;
     -webkit-box-shadow: 0 0 0 0.25rem rgba(210, 77, 82, 0.5);
@@ -4936,7 +4936,7 @@ button.close, button.mailbox-attachment-close {
   position: relative;
   -ms-flex: 1 1 auto;
   flex: 1 1 auto;
-  padding: 1rem
+  /*padding: 1rem*/
 }
 
 .modal-footer {
@@ -43931,5 +43931,11 @@ pre[class*="language-"] {
 .category-title{
   height: 80px;
   line-height: 80px;
+}
+.m-table-tr-bg1 {
+
+}
+.m-table-tr-bg2 {
+  background-color: #f8f9fa;
 }
 

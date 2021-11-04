@@ -527,6 +527,14 @@ $(window).on("load", function () {
             $("#article-li").addClass("active-page");
             $("#article-publish-a").addClass("active-page");
         }
+        else if($("title").text() == "博客分类"){
+            $(".pagination-bar__list:eq(1)").remove();
+            $("#category-li").addClass("active-page");
+        }
+        else if($("title").text() == "博客标签"){
+            $(".pagination-bar__list:eq(1)").remove();
+            $("#tag-li").addClass("active-page");
+        }
     }
 
     /*-----------------

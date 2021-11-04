@@ -56,7 +56,16 @@
                                                     <div class="card t-mt-50" style="margin-bottom:0">
                                                         <div class="card-body">
                                                             <div class="row">
-                                                                <div class="col-sm-1 col-xs-12"><button type="button" class="btn btn-block btn-primary" onclick="OpenAddDialog();">添加</button></div>
+                                                                <div class="col-xl-1 mb-2">
+                                                                    <div class="form-group">
+                                                                        <button type="button" class="btn btn-block btn-primary" onclick="OpenAddDialog();">添加</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xl-2  mb-2">
+                                                                    <div class="form-group">
+                                                                        <button type="button" class="btn btn-block btn-danger" onclick="batchDelete();">批量删除</button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <div class="row" style="margin-top:10px;">
                                                                 <div class="table-responsive">
@@ -65,14 +74,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
- <!--                                                   <div class="row t-mt-50">
-                                                        <div class="col-12">
-                                                            <div class="table-responsive">
-                                                                <table id="tag-table"></table>
-                                                            </div>
-                                                        </div>
-                                                    </div>-->
                                                 </div>
                                             </div>
                                         </div>
@@ -88,6 +89,44 @@
     </div>
 </div>
 <!-- Page Wrapper End -->
+<!--新增标签模态框-->
+<div class="modal fade show" id="modal-addTag" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-modal="true" style="display:none;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <span class="me-lg-2">
+                     <i class="fa fa-tag"></i>
+                </span>
+                <h6 class="mt-0 mb-0 text-capitalize" id="addTag">
+                   新增标签
+                </h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body modal-btj-h">
+                <div class="cards__body t-pt-30 px-3 px-md-4 t-pb-30">
+                    <div class="form-group mb-3">
+                        <label for="tagName" class="form-label sm-text t-text-heading necessary">
+                            名称
+                        </label>
+                        <input type="text" class="form-control" placeholder="输入标签名称" id="tagName">
+                    </div>
+                    <div class="form-group mb-3">
+
+                        <label for="tagCode" class="form-label sm-text t-text-heading">
+                            编号
+                        </label>
+                        <input type="text" class="form-control" placeholder="输入标签编号" id="tagCode">
+                    </div>
+                    <div class="col-md-12 text-center mt-4">
+                        <button type="submit" class="btn btn-primary sm-text text-uppercase btn-min-width" onclick="addSure();">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!--删除提醒框-->
 <div class="modal fade show" id="modal-deleteSure" aria-modal="true">
     <div class="modal-dialog">
@@ -99,7 +138,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>删除后数据不可恢复，确定删除？</p>
+                <p class="t-pt-30 px-3 px-md-4">删除后数据不可恢复，确定删除？</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">取消</button>
@@ -174,6 +213,7 @@
                 pagination: true,     //是否显示分页（*）
                 paginationLoop: false,
                 sidePagination: "server",
+                rowStyle: rowStyle,
                 uniqueId: "id",
                 sortable: false,      //是否启用排序
                 sortOrder: "asc",     //排序方式
@@ -181,7 +221,9 @@
                 pageSize: 10,      //每页的记录行数（*）
                 pageList: [10, 15, 20 ],  //可供选择的每页的行数（*）
                 url: "/tag/getTags",//这个接口需要处理bootstrap table传递的固定参数
-                columns: [{
+                columns: [
+                    { checkbox: true },
+                    {
                     field: 'id',
                     title: '序号',
                     align: 'center',
@@ -209,14 +251,14 @@
                     align: 'center',
                     width: '120',
                     formatter:function(value){
-                        return value == "1" ? "<button type='button' class='btn btn-transparent btn-info sm-text' style='pointer-events:none;'>启用</button>":
-                            "<button type='button' class='btn btn-transparent btn-dark sm-text' style='pointer-events:none;'>禁用</button>";
+                        return value == "1" ? "<button type='button' id='statusBtn' class='btn btn-transparent btn-info sm-text' style='pointer-events:none;'>启用</button>":
+                            "<button type='button' id='statusBtn' class='btn btn-transparent btn-dark sm-text' style='pointer-events:none;'>禁用</button>";
                     }
                 },{
                     field: 'id',
                     title: '操作',
                     align: 'center',
-                    width: '120',
+                    width: '180',
                     formatter: btnGroup
                 }]
             };
@@ -265,50 +307,139 @@
         //初始化表格
         let oTagTable = new TagTable();
         oTagTable.Init();
-        //点击父分类，展开子分类
-        $(".mx-select:eq(1)").find(".list li").on("click",ShowChildrenCategory)
-
 
         function btnGroup(value, row, index) {
+            let lockHtml;
+            if(row.status == "1"){
+                lockHtml = '<i class="fa la-lock" title="禁用" onclick="changeState(' + row.id + ' ,2, ' + index + ')"></i>';
+            }else{
+                lockHtml = '<i class="fa la-unlock" title="启用" onclick="changeState(' + row.id + ' ,1, ' + index + ')"></i>';
+            }
             return '<a href="#" class="t-link t-link--alpha">'+
-                '   <span class="xlg-text t-mr-5">' +
-                '       <i class="las la-eye" title="查看"></i>' +
+                '   <span class="xlg-text t-mr-5">' + lockHtml +
                 '   </span>' +
                 '</a>' +
                 '<a href="#" class="t-link t-link--alpha" onclick="OpenEditDialog(\'' + row.id + '\')">'+
                 '   <span class="xlg-text t-mr-5">' +
-                '       <i class="las la-edit" title="编辑"></i>' +
+                '       <i class="fa fa-pencil"  title="编辑"></i>' +
                 '   </span>' +
                 '</a>' +
                 '<a href="#" class="t-link t-link--alpha" onclick="OpenDeleteDialog(\'' + row.id + '\')">'+
                 '   <span class="xlg-text t-mr-5">' +
-                '       <i class="las la-trash" title="删除"></i>' +
-                '</span>' +
+                '       <i class="fa fa-trash" style="color: red" title="删除"></i>' +
+                '   </span>' +
+                '</a>' +
+                '<a href="#" class="t-link t-link--alpha">'+
+                '   <span class="xlg-text t-mr-5">' +
+                '       <i class="fa fa-arrow-up" style="color:#007bff;" onclick="move(' + row.id + ',\'up\')" title="上移"></i>' +
+                '   </span>' +
+                '</a>' +
+                '<a href="#" class="t-link t-link--alpha">'+
+                '   <span class="xlg-text t-mr-5">' +
+                '       <i class="fa fa-arrow-down" style="color:#007bff;" onclick="move(' + row.id + ', \'down\')" title="下移"></i>' +
+                '   </span>' +
                 '</a>';
         }
-        // 移除数据，移除保存的id
-        $("#modal-deleteSure").on('hidden.bs.modal', function (e) {
-            $(this).removeData("bs.modal");
-            $(this).removeData("deleteid");
-        });
+        //行样式
+        function rowStyle(row, index) {
+            let classes = ['m-table-tr-bg1', 'm-table-tr-bg2'];
+            if (index % 2 == 0) {
+                return { classes: classes[0] };
+            }
+            else {
+                return { classes: classes[1] };
+            }
+        }
     })
 
+    //打开新增框
+    function OpenAddDialog() {
+        //清空输入框
+        $("#tagName").val("");
+        $("#tagCode").val("");
+        $("#addTag").text("新增标签");
+        $('#modal-addTag').data("id", 0);
+        $('#modal-addTag').modal({
+            keyboard: false,
+            show: true
+        });
+    }
+    //新增or修改一条标签数据
+    function addSure() {
+        let name = $("#tagName").val();
+        let code = $("#tagCode").val();
+        //如果id有值则为修改否则为新增
+        let id = $("#modal-addTag").data("id");
+        if(!name){
+            toastr.warning("标签名称不能为空");
+            return;
+        }
+        // 发送异步请求
+        $.post({
+            url: "/tag/add",
+            data: {
+                "name":name,
+                "code":code,
+                "id": id == "0"?null:id
+            },
+            // 处理服务端返回的数据
+            success:function(res) {
+                if (res.retCode == "0") {
+                    //显示服务端返回的消息
+                    toastr.warning(res.retMsg);
+                } else {
+                    toastr.success(res.retMsg);
+                    //关闭模态框
+                    $('#modal-addTag').modal("hide");
+                    //刷新列表
+                    $("#tag-table").bootstrapTable("refresh");
+                }
+            },
+            error: function(){
+                toastr.error("请求失败")
+            }
+        })
+    }
+    //批量删除
+    function batchDelete(){
+        //获取表格中的选中行
+        let datas = $("#tag-table").bootstrapTable("getSelections");
+        if(datas.length == 0){
+            toastr.warning("至少选择一条数据");
+            return;
+        }
+        //获取选中数据的id
+        let ids = [];
+        for(let data of datas){
+            ids.push(data.id);
+        }
+        OpenDeleteDialog(ids);
+    }
     // 打开删除确认框
-    function OpenDeleteDialog(id) {
-        $('#modal-deleteSure').data("deleteId", id);
+    function OpenDeleteDialog(ids) {
+        let deleteIds = [];
+        if(!Array.isArray(ids)){
+            deleteIds.push(ids);
+        }
+        else{
+            deleteIds.push(...ids);
+        }
+        $('#modal-deleteSure').data("deleteIds", deleteIds);
 
         $('#modal-deleteSure').modal({
             keyboard: false,
             show: true
         });
     }
+    //执行删除操作
     function deleteSure() {
-        let id = $('#modal-deleteSure').data("deleteId");
+        let ids = $('#modal-deleteSure').data("deleteIds");
         $.ajax({
-            type: "get",
+            type: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            url: "/article/delete/" + id,
+            url: "/tag/delete",
+            data: JSON.stringify(ids),
             success: function (res) {
                 $('#modal-deleteSure').modal("hide");
                 if (res.code == "0") {
@@ -316,7 +447,7 @@
                     toastr.warning(res.retMsg);
                 } else {
                     toastr.success(res.retMsg);
-                    $("#article-table").bootstrapTable("refresh");
+                    $("#tag-table").bootstrapTable("refresh");
                 }
             },
             error: function(){
@@ -325,13 +456,100 @@
             }
         });
     }
+    //执行启用和禁用
+    function changeState(id, status, index) {
+        $.post({
+            url: "/tag/changeState",
+            data: {
+                "id":id,
+                "status":status,
+            },
+            // 处理服务端返回的数据
+            success:function(res) {
+                if (res.retCode == "0") {
+                    //显示服务端返回的消息
+                    toastr.warning(res.retMsg);
+                } else {
+                    toastr.success(res.retMsg);
+                    let $tr = $("tbody tr:eq(" + index + ")");
+                    let $btn = $tr.find("button");
+                    let $lock = $tr.find("a:eq(0) i");
+                    if(status == 1){
+                        $btn.removeClass("btn-dark").addClass("btn-info").text("启用");
+                        $lock.removeClass("fa-unlock").addClass("fa-lock");
+                        $lock.attr("onclick","changeState(" + id +"," + 2 + "," + index +")");
+                        $lock.attr("title","禁用");
+                    }else{
+                        $btn.removeClass("btn-info").addClass("btn-dark").text("禁用");
+                        $lock.removeClass("fa-lock").addClass("fa-unlock");
+                        $lock.attr("onclick","changeState(" + id +"," + 1 + "," + index +")");
+                        $lock.attr("title","启用");
+                    }
+                }
+            },
+            error: function(){
+                toastr.error("请求失败")
+            }
+        })
+    }
     // 点击编辑按钮
     function OpenEditDialog(id) {
-        location.href = "/article/edit/" + id;
+        $.get({
+            url:"/tag/" + id,
+            dataType:"json",
+            // 处理服务端返回的数据
+            success:function(res) {
+                if (res.retCode == "0") {
+                    //显示服务端返回的消息
+                    toastr.warning(res.retMsg);
+                } else {
+                    let tag = res.data;
+                    $("#tagName").val(tag.name);
+                    $("#tagCode").val(tag.code);
+                    $("#addTag").text("编辑标签");
+                    $('#modal-addTag').data("id", id);
+                    $('#modal-addTag').modal({
+                        keyboard: false,
+                        show: true
+                    });
+                }
+            },
+            error: function(){
+                toastr.error("请求失败")
+            }
+        })
     }
 
 
+    /**
+     * 上下移动
+     * @param id
+     * @param direction
+     */
+    function move(id, direction) {
+        let data = {
+            "id":id,
+            "direction":direction
+        }
+        $.post({
+            url:"/tag/move",
+            data:JSON.stringify(data),
+            contentType: "application/json",
+            success:function(res) {
+                if (res.retCode == "0") {
+                    //显示服务端返回的消息
+                    toastr.warning(res.retMsg);
+                } else {
+                    toastr.success(res.retMsg);
+                    //刷新界面
+                    $("#tag-table").bootstrapTable("refresh");
+                }
+            },
+            error: function(){
+                toastr.error("请求失败")
+            }
+        })
+    }
 </script>
 </body>
-
 </html>

@@ -7,8 +7,11 @@ package com.kongfu.backend.entity;
 public class Tag extends  Entity{
 
     private String name;
+    private String code;
     private int order;
-    //该标签下博客的数量
+    /**
+     *  该标签下博客的数量
+     */
     private int count;
 
     public String getName() {
@@ -33,5 +36,13 @@ public class Tag extends  Entity{
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

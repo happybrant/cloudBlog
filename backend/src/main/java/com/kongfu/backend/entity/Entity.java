@@ -4,19 +4,25 @@ package com.kongfu.backend.entity;
  *基础实体类
  */
 public class Entity {
-    private int id;
-    //创建时间
+    private Integer id;
+    /**
+     * 创建时间
+     */
     private String createTime;
-    //最后修改时间
+    /**
+     * 最后修改时间
+     */
     private String lastUpdateTime;
-    //状态
+    /**
+     * 状态
+     */
     private Integer status;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
