@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+/**
+ * @author 付聪
+ */
 @Mapper
 public interface ArticleMapper {
 
@@ -15,8 +18,13 @@ public interface ArticleMapper {
      */
     int insertArticle(Article article);
 
+
     /**
      * 查找所有博客
+     * @param category
+     * @param createDate
+     * @param tag
+     * @param title
      * @param offset
      * @param limit
      * @return

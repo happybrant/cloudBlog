@@ -1,15 +1,25 @@
 package com.kongfu.backend.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.kongfu.backend.entity.LoginTicket;
+import com.kongfu.backend.entity.User;
+import com.kongfu.backend.service.UserService;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.util.DigestUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * @author 付聪
+ */
 public class BlogUtil {
 
     /**
@@ -18,8 +28,8 @@ public class BlogUtil {
      * @return
      */
     public static String int2chineseNum(int src) {
-        final String num[] = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
-        final String unit[] = {"", "十", "百", "千", "万", "十", "百", "千", "亿", "十", "百", "千"};
+        final String[] num = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+        final String[] unit = {"", "十", "百", "千", "万", "十", "百", "千", "亿", "十", "百", "千"};
         String dst = "";
         int count = 0;
         while(src > 0) {
@@ -151,6 +161,27 @@ public class BlogUtil {
         map.put("age", 18);
         // {"msg":"ok","code":0,"name":"Jack","age":18}
         System.out.println(getJSONString(0, "ok", map));
+    }
+
+    /**
+     * 设置权限
+     * @param ticket
+     * @param userService
+     */
+    public static void setContext(String ticket, UserService userService){
+        if(ticket != null){
+            //查询凭证
+            LoginTicket loginTicket = userService.findLoginTicket(ticket);
+            //检查凭证状态（是否）是否过期
+            if(loginTicket != null && loginTicket.getStatus() == 1 && loginTicket.getExpired().after(new Date())){
+                User user = userService.findUserById(loginTicket.getUserId());
+                // 构建用户认证的结果，并存入 SecurityContext, 以便于 Spring Security 进行授权
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.getAuthorities(user.getId())
+                );
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
+            }
+        }
     }
 
 }

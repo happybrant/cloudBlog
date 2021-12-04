@@ -460,6 +460,8 @@
     function changeState(id, status, index) {
         $.post({
             url: "/tag/changeState",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
             data: {
                 "id":id,
                 "status":status,
@@ -534,7 +536,8 @@
         $.post({
             url:"/tag/move",
             data:JSON.stringify(data),
-            contentType: "application/json",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
             success:function(res) {
                 if (res.retCode == "0") {
                     //显示服务端返回的消息

@@ -1,12 +1,13 @@
 package com.kongfu.backend.dao;
 
-import com.kongfu.backend.entity.Category;
 import com.kongfu.backend.entity.Tag;
 import com.kongfu.backend.entity.TagArticle;
 import org.apache.ibatis.annotations.Mapper;
-
 import java.util.List;
 
+/**
+ * @author 付聪
+ */
 @Mapper
 public interface TagMapper {
 

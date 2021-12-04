@@ -51,6 +51,11 @@ public class ArticleService {
         articleMapper.updateStatus(id, BlogConstant.DELETE_STATUS);
     }
 
+    /**
+     * 根据id查找博客
+     * @param id
+     * @return
+     */
     public Article findArticleById(int id){
         return articleMapper.selectArticleById(id);
     }

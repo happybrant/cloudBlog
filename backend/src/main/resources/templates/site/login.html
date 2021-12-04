@@ -7,80 +7,100 @@
 	<meta name="author" content="Vincent Garreau" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="icon" th:href="@{/assets/img/user.jpg}" sizes="16x16" type="image/png" />
+	<link rel="stylesheet" type="text/css" th:href="@{/assets/css/style.css}" />
 	<link rel="stylesheet" media="screen" th:href="@{/login/css/style.css}">
 	<link rel="stylesheet" type="text/css" th:href="@{/login/css/reset.css}"/>
+	<link rel="stylesheet" type="text/css" th:href="@{/toastr/toastr.min.new.css}" />
 </head>
 <body>
-
-<div id="particles-js">
-		<div class="login">
-			<div class="login-top">
-				<h5>博客系统</h5>
-			</div>
-			<div class="login-center clearfix">
-				<div class="login-center-img">
-					<i class="bx bx-user-circle"></i>
-				</div>
-				<div class="login-center-input">
-					<input type="text" name="" value="" placeholder="请输入您的用户名" onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的用户名'"/>
-					<div class="login-center-input-text">用户名</div>
-				</div>
-			</div>
-			<div class="login-center clearfix">
-				<div class="login-center-img">
-					<i class="bx bx-lock-alt"></i>
-				</div>
-				<div class="login-center-input">
-					<input type="password" name=""value="" placeholder="请输入您的密码" onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的密码'"/>
-					<div class="login-center-input-text">密码</div>
-				</div>
-			</div>
-			<div class="login-button">
-				登陆
-			</div>
-		</div>
-		<div class="sk-rotating-plane"></div>
+<div class="bg-back">
+	<ul class="shadows">
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+	</ul>
+	<ul class="drive">
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+		<li></li>
+	</ul>
 </div>
+<div class="cd-user-modal is-visible"> <!-- this is the entire modal form, including the background -->
+	<div class="cd-header">
+		<img th:src="@{/login/img/cloudBlog.svg}">
+		<span>CloudBlog</span>
+	</div>
+	<div class="cd-user-modal-container">
+		<ul class="cd-switcher">
+			<li><a href="#0" class="selected">登录</a></li>
+			<li><a href="#0">注册</a></li>
+		</ul>
+		<div id="cd-login" class="is-visible is-selected"> <!-- log in form -->
+			<form class="cd-form ">
+				<p class="fieldset">
+					<label class="image-replace cd-username" for="login-username">账户名</label>
+					<input class="full-width has-padding has-border" id="login-username" type="text" placeholder="请输入账户名">
+					<span class="cd-error-message">账户名不能为空</span>
+				</p>
+				<p class="fieldset">
+					<label class="image-replace cd-password" for="login-password">密码</label>
+					<input class="full-width has-padding has-border" id="login-password" type="password"  placeholder="请输入密码">
+					<span class="cd-error-message">密码不能为空</span>
+				</p>
+				<p class="fieldset">
+					<input type="checkbox" id="remember-me" checked>
+					<label for="remember-me">记住登录</label>
+				</p>
+				<p class="fieldset">
+					<input class="full-width" type="submit" value="登录">
+				</p>
+			</form>
+		</div> <!-- cd-login -->
+		<div id="cd-signup"> <!-- sign up form -->
+			<form class="cd-form">
+				<p class="fieldset">
+					<label class="image-replace cd-username" for="signup-username">用户名</label>
+					<input class="full-width has-padding has-border" id="signup-username" type="text" placeholder="请输入账户名">
+				</p>
 
-<!-- scripts -->
-<script th:src="@{/login/js/particles.min.js}"></script>
-<script th:src="@{/login/js/app.js}"></script>
-<script type="text/javascript">
-	function hasClass(elem, cls) {
-	  cls = cls || '';
-	  if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
-	  return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
-	}
-	 
-	function addClass(ele, cls) {
-	  if (!hasClass(ele, cls)) {
-	    ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
-	  }
-	}
-	 
-	function removeClass(ele, cls) {
-	  if (hasClass(ele, cls)) {
-	    var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
-	    while (newClass.indexOf(' ' + cls + ' ') >= 0) {
-	      newClass = newClass.replace(' ' + cls + ' ', ' ');
-	    }
-	    ele.className = newClass.replace(/^\s+|\s+$/g, '');
-	  }
-	}
-		document.querySelector(".login-button").onclick = function(){
-				addClass(document.querySelector(".login"), "active")
-				setTimeout(function(){
-					addClass(document.querySelector(".sk-rotating-plane"), "active")
-					document.querySelector(".login").style.display = "none"
-				},800)
-				setTimeout(function(){
-					removeClass(document.querySelector(".login"), "active")
-					removeClass(document.querySelector(".sk-rotating-plane"), "active")
-					document.querySelector(".login").style.display = "block"
-					location.href = "/index";
-					
-				},2000)
-		}
-</script>
+				<p class="fieldset">
+					<label class="image-replace cd-password" for="signup-username">密码</label>
+					<input class="full-width has-padding has-border" id="signup-password" type="password" placeholder="请输入密码">
+					<span class="cd-error-message"></span>
+				</p>
+				<p class="fieldset">
+					<label class="image-replace cd-password" for="signup-username">确认密码</label>
+					<input class="full-width has-padding has-border" id="signup-password-confirm" type="password" placeholder="请再次输入密码">
+				</p>
+				<p class="fieldset">
+					<label class="image-replace cd-email" for="signup-username">邮箱</label>
+					<input class="full-width has-padding has-border" id="signup-email" type="text" placeholder="请输入您的邮箱">
+				</p>
+				<p class="fieldset">
+					<input class="full-width has-padding" type="submit" value="立即注册">
+				</p>
+			</form>
+		</div> <!-- cd-signup -->
+	</div> <!-- cd-user-modal-container -->
+	<p class="cd-footer"> -KongFu个人博客- </p>
+</div> <!-- cd-user-modal -->
+<script th:src="@{/assets/js/jquery.js}"></script>
+<script th:src="@{/login/js/modernizr.js}"></script>
+<script th:src="@{/login/js/main.js}"></script> <!-- Gem jQuery -->
+<script th:src="@{/toastr/toastr.min.js}"></script>
 </body>
 </html>

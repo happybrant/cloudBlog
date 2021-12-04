@@ -1212,7 +1212,7 @@ progress {
   .gy-md-5 {
     --bs-gutter-y: 3rem; } }
 
-@media (min-width: 992px) {
+@media (min-width: 892px) {
   .col-lg {
     -webkit-box-flex: 1;
     -ms-flex: 1 0 0%;
@@ -38719,7 +38719,7 @@ code {
   position: relative;
   border-radius: 5px; }
 .cards__header{
-  height:80px;
+  height:10px;
 }
 
 /*---------------------------------------
@@ -40194,7 +40194,7 @@ pre[class*="language-"] {
     .chat__left {
       width: 300px;
       height: calc( 100vh - 356px);
-      min-height: 350; } }
+      min-height: 350px; } }
   @media screen and (min-width: 1200px) {
     .chat__left {
       width: 350px; } }

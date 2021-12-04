@@ -2,6 +2,7 @@ package com.kongfu.backend.entity;
 
 /**
  *基础实体类
+ * @author 付聪
  */
 public class Entity {
     private Integer id;

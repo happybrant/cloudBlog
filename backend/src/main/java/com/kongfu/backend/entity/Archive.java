@@ -1,5 +1,9 @@
 package com.kongfu.backend.entity;
 
+/**
+ * 按年份/月份对博客进行分类
+ * @author 付聪
+ */
 public class Archive {
     private String year;
     private String month;

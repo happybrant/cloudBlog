@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * 博客类实体
+ * @author 付聪
  */
 public class Article extends  Entity{
 
@@ -16,10 +17,10 @@ public class Article extends  Entity{
     private int categoryId;
     private int[] tagIds;
     private List<Tag> tags;
-    //分类路径
+    /**
+     * 分类路径
+     */
     private String path;
-    //处理后的发布日期
-    //private String publishDate;
 
     public int[] getTagIds() {
         return tagIds;
