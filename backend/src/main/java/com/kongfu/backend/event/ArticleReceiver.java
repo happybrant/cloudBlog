@@ -1,11 +1,11 @@
 package com.kongfu.backend.event;
 
-import com.alibaba.fastjson.JSON;
 import com.kongfu.backend.model.dto.ArticleDto;
 import com.kongfu.backend.model.entity.Article;
 import com.kongfu.backend.service.ArticleService;
 import com.kongfu.backend.service.ElasticSearchService;
 import com.kongfu.backend.util.BlogConstant;
+import com.kongfu.backend.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -47,10 +47,10 @@ public class ArticleReceiver {
     }
     if ("insert".equals(type)) {
       elasticSearchService.insert(
-          BlogConstant.ARTICLE_INDEX, JSON.toJSONString(articleDto), articleId.toString());
+          BlogConstant.ARTICLE_INDEX, JacksonUtil.toJson(articleDto), articleId.toString());
     } else if ("update".equals(type)) {
       elasticSearchService.update(
-          BlogConstant.ARTICLE_INDEX, JSON.toJSONString(articleDto), articleId.toString());
+          BlogConstant.ARTICLE_INDEX, JacksonUtil.toJson(articleDto), articleId.toString());
     }
   }
 }

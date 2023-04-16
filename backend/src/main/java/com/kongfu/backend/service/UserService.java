@@ -7,7 +7,6 @@ import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.UserMapper;
 import com.kongfu.backend.model.dto.UserQuery;
 import com.kongfu.backend.model.entity.User;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginTicket;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
@@ -17,13 +16,10 @@ import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class UserService implements BlogConstant {
 
   @Resource private UserMapper userMapper;
-  @Resource private HostHolder holder;
 
   @Autowired private RedisTemplate<String, Serializable> redisTemplate;
 
@@ -187,56 +182,5 @@ public class UserService implements BlogConstant {
       }
     }
     return count;
-  }
-
-  /**
-   * 将用户信息初始化在缓存中，默认3600秒
-   *
-   * @param userId
-   * @return
-   */
-  public User initUserCache(int userId) {
-    User user = userMapper.selectByUserId(userId);
-    String redisKey = RedisKeyUtil.getUserKey(userId);
-    // 第4个参数：时间单位，第3个参数：后面时间的倍数
-    redisTemplate.opsForValue().set(redisKey, (Serializable) user, 3600, TimeUnit.SECONDS);
-    return user;
-  }
-
-  /**
-   * 优先从缓存中取值
-   *
-   * @param userId
-   * @return
-   */
-  public User getUserCache(int userId) {
-    String redisKey = RedisKeyUtil.getUserKey(userId);
-    return (User) redisTemplate.opsForValue().get(redisKey);
-  }
-
-  /**
-   * 获取某个用户的权限
-   *
-   * @param userId
-   * @return
-   */
-  public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
-    User user = this.findUserById(userId);
-    List<GrantedAuthority> list = new ArrayList<>();
-    list.add(
-        new GrantedAuthority() {
-          @Override
-          public String getAuthority() {
-            switch (user.getType()) {
-              case 1:
-                return AUTHORITY_ADMIN;
-                /*                    case 2:
-                return AUTHORITY_MODERATOR;*/
-              default:
-                return AUTHORITY_USER;
-            }
-          }
-        });
-    return list;
   }
 }

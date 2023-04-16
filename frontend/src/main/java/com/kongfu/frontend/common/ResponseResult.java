@@ -1,5 +1,7 @@
-package com.kongfu.backend.common;
+package com.kongfu.frontend.common;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,30 +12,26 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ResponseResult<T> implements Serializable {
 
-  private Integer code = ResponseResultCode.Empty.getValue();
+  @JSONField(serializeUsing = BaseEnumCodec.class)
+  private ResponseResultCode code = ResponseResultCode.Empty;
 
   private String message;
 
   private T data;
 
   public ResponseResult(ResponseResultCode code) {
-    this.code = code.getValue();
+    this.code = code;
     this.message = "";
     this.data = null;
   }
 
   public ResponseResult(ResponseResultCode code, String message) {
-    this.code = code.getValue();
+    this.code = code;
     this.message = message;
     this.data = null;
-  }
-
-  public ResponseResult(ResponseResultCode code, String message, T data) {
-    this.code = code.getValue();
-    this.message = message;
-    this.data = data;
   }
 
   @Override

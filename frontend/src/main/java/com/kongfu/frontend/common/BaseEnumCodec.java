@@ -1,4 +1,4 @@
-package com.kongfu.backend.common;
+package com.kongfu.frontend.common;
 
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;

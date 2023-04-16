@@ -29,7 +29,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     if (user != null) {
       int userId = user.getId();
       this.strictInsertFill(metaObject, "createUser", Integer.class, userId);
-      this.strictInsertFill(metaObject, "updateUser", Integer.class, userId);
+      this.strictInsertFill(metaObject, "lastUpdateUser", Integer.class, userId);
     }
   }
 
@@ -41,7 +41,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     LoginToken user = holder.getUser();
     if (user != null) {
       int userId = user.getId();
-      this.strictUpdateFill(metaObject, "updateUser", Integer.class, userId);
+      this.strictUpdateFill(metaObject, "lastUpdateUser", Integer.class, userId);
     }
   }
 
