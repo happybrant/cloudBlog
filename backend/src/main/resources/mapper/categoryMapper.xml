@@ -4,84 +4,73 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kongfu.backend.dao.CategoryMapper">
 
-    <sql id = "selectFields">
+    <sql id="selectFields">
         id,`name`, `order`,code,parent_id,status, path,create_time, last_update_time
     </sql>
 
-    <sql id = "insertFields">
-       `name`, `order`,code,parent_id, path, status, create_time, last_update_time
+    <sql id="insertFields">
+        `name`, `order`,code,parent_id, path, status, create_time, last_update_time
     </sql>
 
     <!--根据分类名称查询分类详情-->
-    <select id = "selectCategory" resultType="Category">
-        select <include refid="selectFields"></include>
-        from category  where name = #{name} and `status`= 1
+    <select id="selectCategory" resultType="Category">
+        select
+        <include refid="selectFields"></include>
+        from ts_category where name = #{name} and `status`= 1
     </select>
 
     <!--根据分类名称查询分类详情-->
-    <select id = "selectCategoryById" resultType="Category">
-        select <include refid="selectFields"></include>
-        from category  where id = #{id} and `status`= 1
+    <select id="selectCategoryById" resultType="Category">
+        select
+        <include refid="selectFields"></include>
+        from ts_category where id = #{id} and `status`= 1
+    </select>
+    <!--查找所有父分类-->
+    <select id="selectCategoryList" resultType="Category">
+        SELECT
+        A.*,
+        B.count
+        FROM
+        ts_category A
+        LEFT JOIN ( SELECT
+        ts_article.category_id,
+        count( ts_article.category_id ) AS count
+        FROM
+        ts_article
+        GROUP BY
+        ts_article.category_id
+        ) B ON A.id = B.category_id
+        WHERE
+        A.`status` = 1
+        ORDER BY
+        A.`order`
     </select>
 
-    <resultMap id="categoryResultMap" type="Category">
-        <id column="id" property="id"/>
-        <result column="name" property="name" />
-        <result column="order" property="order"/>
-        <result column="code" property="code"/>
-        <result column="last_update_time" property="lastUpdateTime"/>
-        <collection property="categoryList"  ofType="Category">
-            <id column="child_id" property="id"/>
-            <result column="child_name" property="name" />
-            <result column="child_order" property="order"/>
-            <result column="child_code" property="code"/>
-            <result column="child_parent_id" property="parentId"/>
-            <result column="child_last_update_time" property="lastUpdateTime"/>
-        </collection>
-    </resultMap>
-    <!--查找所有父分类-->
-    <select id = "selectCategories" resultMap="categoryResultMap">
+    <!--根据父分类查找子分类-->
+    <select id="selectChildrenCategories" resultType="Category">
         SELECT
-            A.*,
-            B.id AS child_id,
-            B.`name` AS child_name,
-            B.`order` AS child_order,
-            B.code AS child_code,
-            B.parent_id AS child_parent_id,
-            B.last_update_time AS child_last_update_time
-        FROM
-            category A
-            LEFT JOIN ( SELECT * FROM category WHERE `status` = 1 ) B ON A.id = B.parent_id
-        WHERE
-            A.parent_id = 0
-            AND A.`status` = 1
-        ORDER BY
-            A.`order`,
-            B.`order`;
+        <include refid="selectFields"></include>
+        FROM ts_category WHERE parent_id =
+        (SELECT id FROM ts_category WHERE NAME = #{category})
+        AND `status` = 1
+        ORDER BY `order`
     </select>
     <!--根据父分类查找子分类-->
-    <select id = "selectChildrenCategories" resultType="Category">
-        select <include refid="selectFields"></include>
-        from category  where parent_id =
-        (SELECT id from category where name = #{category})
-        and `status` = 1
-        order by `order`
-    </select>
-    <!--根据父分类查找子分类-->
-    <select id = "selectSiblingCategories" resultType="Category">
-        select <include refid="selectFields"></include>
-        from category  where parent_id =
-        (SELECT parent_id from category where name = #{category})
+    <select id="selectSiblingCategories" resultType="Category">
+        select
+        <include refid="selectFields"></include>
+        from ts_category where parent_id =
+        (SELECT parent_id from ts_category where name = #{category})
         order by `order`
     </select>
     <!--新增分类-->
     <insert id="insertCategory" parameterType="Category" keyProperty="id">
-        insert into category (<include refid="insertFields"></include>)
+        insert into ts_category (<include refid="insertFields"></include>)
         values(#{name}, #{order}, #{code}, #{parentId}, #{path}, 1, #{createTime}, #{lastUpdateTime})
     </insert>
     <!--修改分类-->
     <update id="updateCategory" parameterType="Category">
-        update category
+        update ts_category
         <set>
             <if test="parentId != null">
                 parent_id = #{parentId},

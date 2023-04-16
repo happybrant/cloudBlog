@@ -6,16 +6,17 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import java.io.Serializable;
+
 /**
- * @author 付聪
- * Redis配置
+ * @author 付聪 Redis配置
  */
 @Configuration
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory){
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, Serializable> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Serializable> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(factory);
 
         // 设置 key 的序列化的方式

@@ -1,37 +1,34 @@
 package com.kongfu.frontend.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
-/**
- * 标签实体
- */
-public class Tag extends  Entity{
+/** 标签实体 */
+@Data
+@TableName(value = "ts_tag")
+public class Tag extends Entity {
 
-    private String name;
-    private int order;
-    //该标签下博客的数量
-    private int count;
+  @TableField("name")
+  private String name;
 
-    public String getName() {
-        return name;
-    }
+  /** 该标签下博客的数量 */
+  @TableField(exist = false)
+  private int count;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public int getOrder() {
-        return order;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
+  public int getCount() {
+    return count;
+  }
 
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
+  public void setCount(int count) {
+    this.count = count;
+  }
 }

@@ -1,57 +1,44 @@
 package com.kongfu.frontend.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.util.List;
 
 /**
  * 分类实体
+ *
+ * @author 付聪
  */
-public class Category extends  Entity{
+@Data
+@TableName(value = "ts_category")
+public class Category extends Entity {
 
-    private String name;
-    private int parentId;
-    private int order;
-    //分类下博客的数量
-    private int count;
-    //分类下的子分类
-    List<Category> categoryList;
+  /** 父节点id */
+  @TableField("parent_id")
+  private Integer parentId;
 
-    public String getName() {
-        return name;
-    }
+  /** 分类名称 */
+  @TableField("name")
+  private String name;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  /** 完整的分类路径 */
+  @TableField("path")
+  private String path;
 
-    public int getParentId() {
-        return parentId;
-    }
+  /** 描述 */
+  @TableField("description")
+  private String description;
 
-    public void setParentId(int parentId) {
-        this.parentId = parentId;
-    }
+  /** 排序 */
+  @TableField("`order`")
+  private Integer order;
 
-    public int getOrder() {
-        return order;
-    }
+  @TableField(exist = false)
+  /** 分类下博客的数量 */
+  private int count;
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public List<Category> getCategoryList() {
-        return categoryList;
-    }
-
-    public void setCategoryList(List<Category> categoryList) {
-        this.categoryList = categoryList;
-    }
+  @TableField(exist = false)
+  private List<Category> children;
 }

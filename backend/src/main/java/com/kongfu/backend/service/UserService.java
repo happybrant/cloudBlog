@@ -1,139 +1,242 @@
 package com.kongfu.backend.service;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kongfu.backend.common.ResponseResult;
+import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.UserMapper;
-import com.kongfu.backend.entity.LoginTicket;
-import com.kongfu.backend.entity.User;
+import com.kongfu.backend.model.dto.UserQuery;
+import com.kongfu.backend.model.entity.User;
+import com.kongfu.backend.model.vo.HostHolder;
+import com.kongfu.backend.model.vo.LoginTicket;
+import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
 import com.kongfu.backend.util.RedisKeyUtil;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import javax.annotation.Resource;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author 付聪
- */
+/** @author 付聪 */
 @Service
 public class UserService implements BlogConstant {
 
-    @Autowired
-    private UserMapper userMapper;
+  @Resource private UserMapper userMapper;
+  @Resource private HostHolder holder;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
+  @Autowired private RedisTemplate<String, Serializable> redisTemplate;
 
-    public Map<String, Object> login(String username, String password, int expiredSeconds){
-        Map<String, Object> map = new HashMap<>(16);
+  public ResponseResult<String> login(String username, String password) {
 
-        //空值处理
-        if(StringUtils.isBlank(username)){
-            map.put("usernameMsg", "账号不能为空");
-            return map;
-        }
-        if(StringUtils.isBlank(password)){
-            map.put("passwordMsg", "密码不能为空");
-            return map;
-        }
-
-        //验证账号
-        User user = userMapper.selectByName(username);
-        if(user == null){
-            map.put("usernameMsg", "该账号不存在");
-            return map;
-        }
-        //验证状态
-        if(user.getStatus() == 0){
-            map.put("usernameMsg", "该账号未激活");
-            return map;
-        }
-        //验证密码
-        if(!user.getPassword().equals(BlogUtil.md5(password + user.getSalt()))){
-            map.put("passwordMsg", "密码错误");
-            return map;
-        }
-        LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setUserId(user.getId());
-        //随机凭证
-        loginTicket.setTicket(BlogUtil.generateUUID());
-        //设置凭证状态为有效（当用户登出的时候，设置凭证状态为无效）
-        loginTicket.setStatus(1);
-        //设置凭证到期时间
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-
-        // 将登录凭证存入 redis
-        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
-        redisTemplate.opsForValue().set(redisKey, loginTicket);
-
-        map.put("ticket", loginTicket.getTicket());
-        return map;
+    // 空值处理
+    if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+      return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "用户名或密码为空");
     }
-
-    /**
-     * 根据 ticket 查询 LoginTicket 信息
-     * @param ticket
-     * @return
-     */
-    public LoginTicket findLoginTicket(String ticket){
-        String redisKey = RedisKeyUtil.getTicketKey(ticket);
-        return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
+    // 验证账号
+    User user = userMapper.selectByName(username);
+    if (user == null) {
+      return new ResponseResult<>(ResponseResultCode.Error, "该账号不存在");
     }
-
-    public User findUserById(int userId){
-        User user = getUserCache(userId);
-        if(user == null){
-            user = initUserCache(userId);
-        }
-        return user;
+    // 验证状态
+    if (user.getStatus() == 2) {
+      return new ResponseResult<>(ResponseResultCode.Error, "该账号已停用");
     }
-
-    /**
-     * 将用户信息初始化在缓存中，默认3600秒
-     * @param userId
-     * @return
-     */
-    public User initUserCache(int userId){
-        User user = userMapper.selectByUserId(userId);
-        String redisKey = RedisKeyUtil.getUserKey(userId);
-        //第4个参数：时间单位，第3个参数：后面时间的倍数
-        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
-        return user;
+    // 验证密码
+    if (!user.getPassword().equals(BlogUtil.md5(password + user.getSalt()))) {
+      return new ResponseResult<>(ResponseResultCode.Error, "密码错误");
     }
-
-    /**
-     *优先从缓存中取值
-     * @param userId
-     * @return
-     */
-    public User getUserCache(int userId){
-        String redisKey = RedisKeyUtil.getUserKey(userId);
-        return (User) redisTemplate.opsForValue().get(redisKey);
+    LoginToken loginToken = new LoginToken(user.getId(), user.getUsername(), user.getType());
+    if (StringUtils.isEmpty(loginToken.getTicket())) {
+      return new ResponseResult<>(ResponseResultCode.Error, "生成Ticket失败");
+    } else {
+      return new ResponseResult<>(ResponseResultCode.Success, "认证成功", loginToken.getTicket());
     }
+  }
 
-    /**
-     * 获取某个用户的权限
-     * @param userId
-     * @return
-     */
-    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
-        User user = this.findUserById(userId);
-        List<GrantedAuthority> list = new ArrayList<>();
-        list.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                switch (user.getType()) {
-                    case 1:
-                        return AUTHORITY_ADMIN;
-/*                    case 2:
-                        return AUTHORITY_MODERATOR;*/
-                    default:
-                        return AUTHORITY_USER;
-                }
+  /**
+   * 分页查找用户
+   *
+   * @param userQuery
+   * @return
+   */
+  public Page<User> getUserListPager(UserQuery userQuery) {
+    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+    queryWrapper.ne("status", DELETE_STATUS);
+
+    if (!StringUtils.isEmpty(userQuery.getName())) {
+      queryWrapper
+          .like("username", userQuery.getName())
+          .or()
+          .like("displayName", userQuery.getName());
+    }
+    if (userQuery.getStatus() != null) {
+      queryWrapper.eq("status", userQuery.getStatus());
+    }
+    if (userQuery.getType() != null) {
+      queryWrapper.eq("type", userQuery.getType());
+    }
+    Page<User> userPage = new Page<>(userQuery.getPageIndex(), userQuery.getPageSize());
+
+    return userMapper.selectPage(userPage, queryWrapper);
+  }
+
+  /**
+   * 用户退出（将用户加入到黑名单中并设置redis缓存过期时间为token过期时间）
+   *
+   * @param ticket
+   */
+  public ResponseResult<String> logout(String ticket) {
+    // 解析token
+    Claims claims = LoginToken.resolveTicket(ticket.substring(7));
+    if (claims != null) {
+      // 获取过期时间
+      Date expiration = claims.getExpiration();
+      if (new Date().after(expiration)) {
+        return new ResponseResult<>(ResponseResultCode.Error, "token超时");
+      }
+      // 获取用户名
+      String userName = claims.getIssuer();
+      // 获取token唯一标识
+      String jti = claims.getId();
+      long exp = expiration.getTime() / 1000;
+      long currentTimeSeconds = System.currentTimeMillis() / 1000;
+
+      // 将该用户加入到黑名单中并设置token过期时间
+      redisTemplate
+          .opsForValue()
+          .set(
+              BlogConstant.TOKEN_BLACKLIST_PREFIX + jti,
+              userName,
+              (exp - currentTimeSeconds),
+              TimeUnit.SECONDS);
+      return new ResponseResult<>(ResponseResultCode.Success, "退出成功");
+    } else {
+      return new ResponseResult<>(ResponseResultCode.Error, "token格式异常");
+    }
+  }
+
+  /**
+   * 管理员新增用户，密码为初始密码123456
+   *
+   * @param user
+   * @return
+   */
+  public int addUser(User user) {
+    user.setStatus(BlogConstant.PUBLISH_STATUS);
+    user.setSalt(BlogUtil.generateUUID().substring(0, 5));
+    user.setPassword(BlogUtil.md5(BlogConstant.INITIAL_PASSWORD + user.getSalt()));
+    return userMapper.insert(user);
+  }
+
+  /**
+   * 更新用户信息
+   *
+   * @param user
+   * @return
+   */
+  public int updateUser(User user) {
+    return userMapper.updateById(user);
+  }
+
+  /**
+   * 根据 ticket 查询 LoginTicket 信息
+   *
+   * @param ticket
+   * @return
+   */
+  public LoginTicket findLoginTicket(String ticket) {
+    String redisKey = RedisKeyUtil.getTicketKey(ticket);
+    return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
+  }
+
+  /**
+   * 根据id查找用户
+   *
+   * @param userId
+   * @return
+   */
+  public User findUserById(int userId) {
+    return userMapper.selectByUserId(userId);
+  }
+
+  /**
+   * 根据id删除用户,逻辑删除
+   *
+   * @param ids
+   * @return
+   */
+  public int deleteUser(List<Integer> ids) {
+    int count = 0;
+    for (int id : ids) {
+      User user = userMapper.selectById(id);
+      if (user != null) {
+        // 将状态修改为0
+        user.setStatus(BlogConstant.DELETE_STATUS);
+        count += userMapper.updateById(user);
+      }
+    }
+    return count;
+  }
+
+  /**
+   * 将用户信息初始化在缓存中，默认3600秒
+   *
+   * @param userId
+   * @return
+   */
+  public User initUserCache(int userId) {
+    User user = userMapper.selectByUserId(userId);
+    String redisKey = RedisKeyUtil.getUserKey(userId);
+    // 第4个参数：时间单位，第3个参数：后面时间的倍数
+    redisTemplate.opsForValue().set(redisKey, (Serializable) user, 3600, TimeUnit.SECONDS);
+    return user;
+  }
+
+  /**
+   * 优先从缓存中取值
+   *
+   * @param userId
+   * @return
+   */
+  public User getUserCache(int userId) {
+    String redisKey = RedisKeyUtil.getUserKey(userId);
+    return (User) redisTemplate.opsForValue().get(redisKey);
+  }
+
+  /**
+   * 获取某个用户的权限
+   *
+   * @param userId
+   * @return
+   */
+  public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+    User user = this.findUserById(userId);
+    List<GrantedAuthority> list = new ArrayList<>();
+    list.add(
+        new GrantedAuthority() {
+          @Override
+          public String getAuthority() {
+            switch (user.getType()) {
+              case 1:
+                return AUTHORITY_ADMIN;
+                /*                    case 2:
+                return AUTHORITY_MODERATOR;*/
+              default:
+                return AUTHORITY_USER;
             }
+          }
         });
-        return list;
-    }
+    return list;
+  }
 }

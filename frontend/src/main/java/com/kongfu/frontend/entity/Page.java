@@ -55,6 +55,7 @@ public class Page {
 
     /**
      * 获取当前页的起始索引 offset
+     *
      * @return
      */
     public int getOffset() {
@@ -63,13 +64,13 @@ public class Page {
 
     /**
      * 获取总页数
+     *
      * @return
      */
     public int getTotal() {
         if (rows % limit == 0) {
             return rows / limit;
-        }
-        else {
+        } else {
             return rows / limit + 1;
         }
     }
@@ -77,6 +78,7 @@ public class Page {
     /**
      * 获取分页栏起始页码
      * 分页栏显示当前页码及其前后两页
+     *
      * @return
      */
     public int getFrom() {
@@ -86,6 +88,7 @@ public class Page {
 
     /**
      * 获取分页栏结束页码
+     *
      * @return
      */
     public int getTo() {

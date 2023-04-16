@@ -4,58 +4,166 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kongfu.frontend.dao.ArticleMapper">
 
-    <sql id = "selectFields">
+    <sql id="selectFields">
         id, title, content, description, status, path,create_time, last_update_time
     </sql>
 
-    <sql id = "insertFields">
-      title, content, description,category_id, status, create_time, last_update_time
+    <sql id="insertFields">
+        title, content, description,category_id, status, create_time, last_update_time
     </sql>
 
     <!--分页查找博客-->
-    <select id = "selectArticle" resultType="Article">
+    <select id="selectArticle" resultType="Article" parameterType="ArticleQuery">
         select article.*, category.path
-        from article left join category on article.category_id = category.id
-        where article.status != 2
-        <if test = "!category.equals('all')">
-            and article.category_id in (select id from category where name = #{category})
-            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        from ts_article article left join ts_category category on article.category_id = category.id left join ts_setting
+        setting on article.create_user = setting.create_user
+        where article.status = 1
+        and setting.status = 1
+        and setting.routing = #{router}
+        <if test="category != null ">
+            and (article.category_id in (select id from ts_category where name = #{category})
+            or article.category_id in (select id from ts_category where parent_id in (select id from ts_category where
+            name
+            =
+            #{category})))
         </if>
-        <if test = "!createDate.equals('all')">
-            and date_format(article.create_time,'%Y-%m') = #{createDate}
+        <if test="createYear != null">
+            and year(article.create_time) = #{createYear}
         </if>
-        <if test = "!tag.equals('all')">
-            and article.id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        <if test="createMonth != null">
+            and month(article.create_time) = #{createMonth}
+        </if>
+        <if test="tag != null">
+            and article.id in (select article_tag.article_id from tr_article_tag article_tag left join ts_tag tag on
+            article_tag.tag_id =
+            tag.id where tag.name = #{tag})
         </if>
         order by article.create_time desc
-        limit #{offset}, #{limit}
+        <if test="pageSize != null and pageSize != 0">
+            <choose>
+                <when test="startRow != null">
+                    LIMIT #{startRow},#{pageSize}
+                </when>
+                <otherwise>
+                    LIMIT 0,#{pageSize}
+                </otherwise>
+            </choose>
+        </if>
     </select>
     <!--查找博客总数-->
-    <select id = "selectArticleCount" resultType="java.lang.Integer">
+    <select id="selectArticleCount" resultType="java.lang.Integer">
         select count(*)
-        from article
-        where status != 2
-        <if test = "!category.equals('all')">
-            and category_id in (select id from category where name = #{category})
-            or category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        from ts_article article left join ts_setting
+        setting on article.create_user = setting.create_user
+        where article.status = 1
+        and setting.status = 1
+        and setting.routing = #{router}
+        <if test="category != null ">
+            and category_id in (select id from ts_category where name = #{category})
+            or category_id in (select id from ts_category where parent_id in (select id from ts_category where name =
+            #{category}))
         </if>
-        <if test = "!createDate.equals('all')">
-            and date_format(create_time,'%Y-%m') = #{createDate}
+        <if test="createYear != null">
+            and year(article.create_time) = #{createYear}
         </if>
-        <if test = "!tag.equals('all')">
-            and id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        <if test="createMonth != null">
+            and month(article.create_time) = #{createMonth}
+        </if>
+        <if test="tag != null">
+            and article.id in (select article_tag.article_id from tr_article_tag article_tag left join ts_tag tag on
+            article_tag.tag_id = tag.id where
+            tag.name = #{tag})
         </if>
     </select>
-    <!--分页查找博客-->
-    <select id = "selectArticleById" resultType="Article">
-        select article.*, category.path
-        from article left join category on article.category_id = category.id
-        where article.status != 2 and article.id = #{id}
+    <resultMap id="articleMap" type="Article">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="description" property="description"/>
+        <result column="path" property="path"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="last_update_time" property="lastUpdateTime"/>
+        <collection property="tagNames" ofType="java.lang.String">
+            <result column="tag_name" property="name"/>
+        </collection>
+    </resultMap>
+    <!--根据id查找博客-->
+    <select id="selectArticleById" resultMap="articleMap" parameterType="int">
+        select article.*, category.path, tag.name as tag_name
+        from ts_article article left join ts_category category on article.category_id = category.id
+        left join tr_article_tag article_tag  ON article.id =  article_tag.article_id LEFT JOIN ts_tag tag ON article_tag.tag_id = tag.id
+        where article.status = 1 and article.id = #{id}
     </select>
-
+    <!--根据router查找博客-->
+    <select id="selectArticleByRouter" resultMap="articleMap" parameterType="java.lang.String">
+        select article.*, category.path, tag.name as tag_name
+        from ts_article article left join ts_category category on article.category_id = category.id
+        left join tr_article_tag article_tag  ON article.id =  article_tag.article_id LEFT JOIN ts_tag tag ON article_tag.tag_id = tag.id
+        LEFT JOIN ts_setting setting ON setting.create_user = article.create_user
+        where article.status = 3 and setting.routing = #{router}
+    </select>
     <!--插入/添加博客-->
     <insert id="insertArticle" parameterType="Article" keyProperty="id">
-        insert into article (<include refid="insertFields"></include>)
+        insert into ts_article (<include refid="insertFields"></include>)
         values(#{title}, #{content}, #{description}, #{categoryId}, 1, now(), now())
     </insert>
+    <!--按月对博客进行归档-->
+    <select id="selectArticleGroupByMonth" resultType="java.util.Map">
+        SELECT
+            A.create_time AS createTime,
+            count( 1 ) AS count
+        FROM
+            ( SELECT DATE_FORMAT( create_time, '%Y-%m' ) AS create_time FROM `ts_article` WHERE `status` = 1) AS A
+        GROUP BY
+            A.create_time
+        ORDER BY createTime DESC
+    </select>
+    <select id="selectPreArticleById" parameterType="int" resultType="Article">
+        SELECT  t1.id,t1.title
+        FROM (
+        -- 查询数据添加序号列
+        SELECT @num:=@num+1 AS rownum, ts_article.*
+        FROM ts_article,(SELECT @num:=0) AS r
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t1,(
+        -- 查询当前记录对应序号
+        SELECT curNum FROM(
+        SELECT @num2:=@num2+1 AS curNum, ts_article.*
+        FROM ts_article ,(SELECT @num2:=0) r2
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t
+        WHERE id=#{id}
+        )t2
+        WHERE rownum
+        &lt;  curNum
+          ORDER BY rownum DESC
+          LIMIT
+        1
+    </select>
+    <select id="selectNextArticleById" parameterType="int" resultType="Article">
+        SELECT t1.id,t1.title
+        FROM (
+        -- 查询数据添加序号列
+        SELECT @num:=@num+1 AS rownum, ts_article.*
+        FROM ts_article,(SELECT @num:=0) AS r
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t1,(
+        -- 查询当前记录对应序号
+        SELECT curNum FROM(
+        SELECT @num2:=@num2+1 AS curNum, ts_article.*
+        FROM ts_article ,(SELECT @num2:=0) r2
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t
+        WHERE id=#{id}
+        )t2
+         WHERE rownum &gt; curNum
+        ORDER BY rownum
+        LIMIT 1
+    </select>
 </mapper>

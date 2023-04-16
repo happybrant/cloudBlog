@@ -1,42 +1,33 @@
 package com.kongfu.frontend.service;
 
 import com.kongfu.frontend.dao.TagMapper;
-import com.kongfu.frontend.entity.Tag;
-import com.kongfu.frontend.entity.TagArticle;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
+/** @author 付聪 */
 @Service
 public class TagService {
 
-    @Autowired
-    public TagMapper tagMapper;
+  @Resource public TagMapper tagMapper;
 
-    /**
-     * 查找所有标签及其对应的博客数量
-     * @return
-     */
-    public List<Tag> findTags(){
-      return tagMapper.selectTagCategory();
-    }
+  /**
+   * 查找所有标签及其对应的博客数量
+   *
+   * @return
+   */
+  public List<Map<String, Object>> findTags(String router) {
+    return tagMapper.selectTagCategory(router);
+  }
 
-    /**
-     * 获取所有的标签
-     * @return
-     */
-    public List<Tag> findAllTags(){
-        return tagMapper.selectTag();
-    }
-
-    /**
-     * 插入标签文章关联信息
-     * @param tagArticles
-     * @return
-     */
-    public int insertTagArticle(List<TagArticle> tagArticles){
-        return  tagMapper.insertTagArticle(tagArticles);
-    }
-
+  /**
+   * 获取标签的总数
+   *
+   * @return
+   */
+  public int findTagCount(String router) {
+    return tagMapper.selectTagCount(router);
+  }
 }

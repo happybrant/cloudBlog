@@ -1,47 +1,28 @@
 package com.kongfu.frontend.entity;
 
-/**
- *基础实体类
- */
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
+/** @author 付聪 */
+@Data
 public class Entity {
-    private int id;
-    //创建时间
-    private String createTime;
-    //最后修改时间
-    private String lastUpdateTime;
-    //状态
-    private int status;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getLastUpdateTime() {
-        return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(String lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
+  @TableId(value = "id", type = IdType.AUTO)
+  private Integer id;
+  /** 创建人 */
+  @TableField("create_user")
+  private Integer createUser;
+  /** 最后修改人 */
+  @TableField("last_update_user")
+  private Integer lastUpdateUser;
+  /** 创建时间 */
+  @TableField("create_time")
+  private String createTime;
+  /** 最后修改时间 */
+  @TableField("last_update_time")
+  private String lastUpdateTime;
+  /** 状态 */
+  @TableField("status")
+  private Integer status;
 }

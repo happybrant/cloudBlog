@@ -4,7 +4,7 @@ package com.kongfu.frontend.entity;
 /**
  * 标签博客实体
  */
-public class TagArticle{
+public class TagArticle {
 
     private int id;
     private int tagId;

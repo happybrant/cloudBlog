@@ -1,1 +1,3 @@
 # clouBlog
+此仓库是cloudBlog的后台代码仓库
+其中backend是管理界面的后端，frontend是博客展示界面的后端

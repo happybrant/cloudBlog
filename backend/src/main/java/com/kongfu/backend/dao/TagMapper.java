@@ -1,25 +1,28 @@
 package com.kongfu.backend.dao;
 
-import com.kongfu.backend.entity.Tag;
-import com.kongfu.backend.entity.TagArticle;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.kongfu.backend.model.entity.Tag;
+import com.kongfu.backend.model.entity.TagArticle;
 import org.apache.ibatis.annotations.Mapper;
+
 import java.util.List;
 
 /**
  * @author 付聪
  */
 @Mapper
-public interface TagMapper {
+public interface TagMapper extends BaseMapper<Tag> {
 
     /**
      * 查找所有标签及其对应的博客数量
+     *
      * @return
      */
     List<Tag> selectTagCategory();
 
-
     /**
      * 分页查找标签
+     *
      * @param offset
      * @param limit
      * @return
@@ -28,19 +31,29 @@ public interface TagMapper {
 
     /**
      * 查找所有标签的数量
+     *
      * @return
      */
     int selectTagCount();
 
     /**
      * 插入标签文章关联信息
+     *
      * @param tagArticles
      * @return
      */
     int insertTagArticle(List<TagArticle> tagArticles);
 
     /**
+     * 根据文章id删除标签关联关系
+     *
+     * @param articleId
+     */
+    void deleteTagArticle(int articleId);
+
+    /**
      * 根据标签名称获取标签详情
+     *
      * @param tagName
      * @return
      */
@@ -48,18 +61,21 @@ public interface TagMapper {
 
     /**
      * 插入一条标签数据
+     *
      * @param tag
      */
     void insertTag(Tag tag);
 
     /**
      * 批量删除标签
+     *
      * @param ids
      */
     void batchDeleteTags(int[] ids);
 
     /**
      * 根据id获取标签详情
+     *
      * @param id
      * @return
      */
@@ -67,12 +83,14 @@ public interface TagMapper {
 
     /**
      * 修改标签详情
+     *
      * @param tag
      */
     void updateTag(Tag tag);
 
     /**
      * 计算当前order的数据是第几个有效数据
+     *
      * @param order
      * @return
      */
@@ -80,12 +98,15 @@ public interface TagMapper {
 
     /**
      * 根据order排序后，获取上一条数据
+     *
      * @param order
      * @return
      */
     Tag selectPreTag(int order);
+
     /**
      * 根据order排序后，获取下一条数据
+     *
      * @param order
      * @return
      */

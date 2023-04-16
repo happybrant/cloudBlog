@@ -4,99 +4,117 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kongfu.backend.dao.ArticleMapper">
 
-    <sql id = "selectFields">
-        A.id, title, content, description, A.status, path,A.create_time, A.last_update_time,tag_id,name
-    </sql>
-
-    <sql id = "insertFields">
-      title, content, description,category_id, status, create_time, last_update_time
+    <sql id="selectFields">
+        ts_article.id, title, content, origin_content, category_id, cover_url,ts_article.description, ts_article.status,
+        ts_article.create_time,
+        ts_category.path AS category_name, ts_tag.id AS tag_id,ts_tag.name AS tag_name
     </sql>
 
     <resultMap type="Article" id="articleResultMap">
         <id column="id" property="id"/>
         <result column="title" property="title"/>
         <result column="content" property="content"/>
+        <result column="origin_content" property="originContent"/>
         <result column="description" property="description"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
-        <result column="path" property="path"/>
         <collection property="tags" ofType="Tag">
             <id column="tag_id" property="id"/>
-            <result column="name" property="name"/>
+            <result column="tag_name" property="name"/>
         </collection>
     </resultMap>
-    <!--分页查找博客-->
-    <select id = "selectArticle" resultMap="articleResultMap">
-        select  <include refid="selectFields"></include>
-        from (
-        select article.*, category.path
-        from article
-        left join category ON article.category_id = category.id
-        where article.status != 0
-        <if test = "!category.equals('all')">
-            and article.category_id = (select id from category where name = #{category})
-            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+    <!--分页查找博客，关联分类查询-->
+    <select id="selectArticleList" parameterType="ArticleQuery" resultMap="articleResultMap">
+        select
+        <include refid="selectFields"></include>
+        from (select * from ts_article
+        where ts_article.`status` != 0
+        <if test="categoryId != null">
+            and ts_article.category_id = #{categoryId}
         </if>
-        <if test = "!createDate.equals('all')">
-            and date_format(article.create_time,'%Y-%m-%d') = #{createDate}
+        <if test="status != null">
+            and ts_article.`status`= #{status}
         </if>
-        <if test = "!tag.equals('all')">
-            and article.id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        <if test="createTime != null and !createTime.equals('')">
+            and date_format(ts_article.create_time,'%Y-%m-%d') = #{createTime}
         </if>
-        <if test = "!title.equals('')">
-            and article.title like "%"#{title}"%"
+        <if test="title != null and !title.equals('')">
+            and ts_article.title like "%"#{title}"%"
         </if>
-        order by article.create_time desc
-        limit #{offset}, #{limit}
-        ) AS A
-        left join article_tag ON A.id = article_tag.article_id
-        left join tag ON article_tag.tag_id  = tag.id
-        and tag.`status` != 0 or tag.`status` is null
+        order by ts_article.create_time desc
+        <if test="pageSize != null and pageSize != 0">
+            <choose>
+                <when test="startRow != null">
+                    LIMIT #{startRow},#{pageSize}
+                </when>
+                <otherwise>
+                    LIMIT 0,#{pageSize}
+                </otherwise>
+            </choose>
+        </if>
+        ) ts_article
+        left join ts_category ON ts_article.category_id = ts_category.id
+        left join tr_article_tag ON ts_article.id = tr_article_tag.article_id
+        left join ts_tag ON ts_tag.id = tr_article_tag.tag_id and ts_tag.`status` != 0 or ts_tag.`status` is null
     </select>
     <!--查找博客总数-->
-    <select id = "selectArticleCount" resultType="java.lang.Integer">
+    <select id="selectArticleCount" resultType="java.lang.Integer"
+            parameterType="com.kongfu.backend.model.dto.ArticleQuery">
         select count(*)
-        from article
-        where status != 0
-        <if test = "!category.equals('all')">
-            and article.category_id = (select id from category where name = #{category})
-            or article.category_id in (select id from category where parent_id in (select id from category where name = #{category}))
+        from ts_article
+        where ts_article.`status` != 0
+        <if test="categoryId != null">
+            and ts_article.category_id = #{categoryId}
         </if>
-        <if test = "!createDate.equals('all')">
-            and date_format(create_time,'%Y-%m-%d') = #{createDate}
+        <if test="status != null">
+            and ts_article.`status`= #{status}
         </if>
-        <if test = "!tag.equals('all')">
-            and id in (select article_tag.article_id from article_tag left join tag on article_tag.tag_id = tag.id where tag.name = #{tag})
+        <if test="createTime != null and !createTime.equals('')">
+            and date_format(ts_article.create_time,'%Y-%m-%d') = #{createTime}
         </if>
-        <if test = "!title.equals('')">
-            and article.title like "%"#{title}"%"
+        <if test="title != null and !title.equals('')">
+            and ts_article.title like "%"#{title}"%"
         </if>
     </select>
-    <!--根据博客id查找博客-->
-    <select id = "selectArticleById" parameterType="int" resultMap="articleResultMap">
-        select  <include refid="selectFields"></include>
-        from (
-        select article.*, category.path
-        from article
-        left join category ON article.category_id = category.id
-        where article.status != 0
-        and article.id=#{id}
-        ) AS A
-        left join article_tag ON A.id = article_tag.article_id
-        left join tag ON article_tag.tag_id  = tag.id
-        and tag.`status` != 0 or tag.`status` is null
+    <!--根据博客id查找博客，关联分类和标签-->
+    <select id="selectArticleById" parameterType="int" resultMap="articleResultMap">
+        select
+        <include refid="selectFields"></include>
+        from ts_article
+        left join ts_category ON ts_article.category_id = ts_category.id
+        left join tr_article_tag ON ts_article.id = tr_article_tag.article_id
+        left join ts_tag ON tr_article_tag.tag_id = ts_tag.id
+        and ts_tag.`status` != 0 or ts_tag.`status` is null
+        where ts_article.id = #{id}
     </select>
 
-    <!--插入/添加博客-->
-    <insert id="insertArticle" parameterType="Article" keyProperty="id">
-        insert into article (<include refid="insertFields"></include>)
-        values(#{title}, #{content}, #{description}, #{categoryId}, #{status}, now(), now())
-    </insert>
+    <!--根据博客的分类对博客进行分组-->
+    <select id="selectArticleByCategory" resultType="java.util.Map">
+        SELECT
+        SUBSTR( SUBSTRING_INDEX( category.path, '/', 2 ), 2 ) AS CategoryName,
+        COUNT( 1 ) AS Count
+        FROM
+        ts_article article
+        LEFT JOIN ts_category category ON article.category_id = category.id
+        WHERE
+        article.`status` != 0 AND category.`status` != 0
+        GROUP BY
+        CategoryName
+    </select>
 
-    <!--修改博客状态：1-正常; 0-删除;-->
-    <update id="updateStatus">
-        update article
-        set status = #{status}
-        where id = #{id}
-    </update>
+    <!--根据博客的标签对博客进行分组-->
+    <select id="selectArticleByTag" resultType="java.util.Map">
+        SELECT
+        ts_tag.`name` AS TagName,count(*) AS Count
+        FROM
+        (SELECT * FROM ts_tag WHERE ts_tag.`status` != 0)ts_tag
+        INNER JOIN tr_article_tag ON ts_tag.id = tr_article_tag.tag_id
+        INNER JOIN (SELECT * FROM ts_article WHERE ts_article.`status` != 0 )ts_article
+        ON ts_article.id = tr_article_tag.article_id
+        GROUP BY ts_tag.id
+    </select>
+
 </mapper>
