@@ -1,6 +1,7 @@
 package com.kongfu.backend.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.model.entity.Album;
@@ -42,6 +43,7 @@ public class AlbumController {
    * @return
    */
   @GetMapping("/list")
+  @Log(menu = "相册管理", description = "获取相册列表")
   public ResponseResult<Page<Album>> getAlbumList(
       @RequestParam("pageIndex") int pageIndex, @RequestParam("pageSize") int pageSize) {
     if (pageIndex <= 0 || pageSize <= 0) {
@@ -58,6 +60,7 @@ public class AlbumController {
    * @return
    */
   @PostMapping("/add")
+  @Log(menu = "相册管理", description = "新增相册")
   public ResponseResult<String> addAlbum(@RequestBody Album album) {
     ResponseResult<String> result;
     if (album == null) {
@@ -79,6 +82,7 @@ public class AlbumController {
    * @return
    */
   @PostMapping("/update")
+  @Log(menu = "相册管理", description = "更新相册")
   public ResponseResult<String> updateAlbum(@RequestBody Album album) {
     ResponseResult<String> result;
     if (album == null) {
@@ -100,6 +104,7 @@ public class AlbumController {
    * @return
    */
   @DeleteMapping("/delete")
+  @Log(menu = "相册管理", description = "删除相册")
   public ResponseResult<String> deleteAlbum(@RequestParam("id") Integer id) {
     ResponseResult<String> result;
     if (id == null || id == 0) {
@@ -122,6 +127,7 @@ public class AlbumController {
    * @return
    */
   @PostMapping("/photo/add")
+  @Log(menu = "相册管理", description = "新增照片")
   public ResponseResult<String> addPhoto(MultipartFile[] files, Integer albumId) {
     ResponseResult<String> result;
     if (files == null || files.length <= 0 || albumId == null) {
@@ -157,6 +163,7 @@ public class AlbumController {
    * @return
    */
   @GetMapping("/photo/list")
+  @Log(menu = "相册管理", description = "获取照片列表")
   public ResponseResult<Page<Photo>> getPhotoList(
       @RequestParam("pageIndex") int pageIndex,
       @RequestParam("pageSize") int pageSize,
@@ -175,6 +182,7 @@ public class AlbumController {
    * @return
    */
   @DeleteMapping("/photo/delete")
+  @Log(menu = "相册管理", description = "根据id删除相册")
   public ResponseResult<String> deletePhoto(@RequestParam("id") Integer id) {
     ResponseResult<String> result;
     if (id == null || id == 0) {

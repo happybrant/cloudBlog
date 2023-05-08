@@ -2,10 +2,18 @@ package com.kongfu.frontend.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/** 标签实体 */
+/**
+ * 标签实体
+ *
+ * @author 付聪
+ */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName(value = "ts_tag")
 public class Tag extends Entity {
 
@@ -15,20 +23,4 @@ public class Tag extends Entity {
   /** 该标签下博客的数量 */
   @TableField(exist = false)
   private int count;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
-  }
 }

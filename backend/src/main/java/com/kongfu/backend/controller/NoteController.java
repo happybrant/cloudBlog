@@ -2,6 +2,7 @@ package com.kongfu.backend.controller;
 
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.model.dto.NoteQuery;
@@ -27,6 +28,7 @@ public class NoteController implements BlogConstant {
    * @return
    */
   @PostMapping("/list")
+  @Log(menu = "笔记管理", description = "获取笔记列表")
   public ResponseResult<Page<Note>> getNoteList(@RequestBody Map<String, Object> map) {
     Page<Note> notePage = noteService.getNoteListPager(getNoteQuery(map));
     return new ResponseResult<>(ResponseResultCode.Success, "操作成功", notePage);
@@ -68,6 +70,7 @@ public class NoteController implements BlogConstant {
    * @return
    */
   @GetMapping("/getNoteById")
+  @Log(menu = "笔记管理", description = "根据id获取笔记")
   public ResponseResult<Note> getNoteById(@RequestParam("id") int id) {
     if (id <= 0) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
@@ -83,6 +86,7 @@ public class NoteController implements BlogConstant {
    * @return
    */
   @PostMapping("/add")
+  @Log(menu = "笔记管理", description = "新增笔记")
   public ResponseResult<Object> addNote(@RequestBody Note note) {
     ResponseResult<Object> result;
     if (note == null) {
@@ -104,6 +108,7 @@ public class NoteController implements BlogConstant {
    * @return
    */
   @PostMapping("/update")
+  @Log(menu = "笔记管理", description = "修改笔记")
   public ResponseResult<String> updateNote(@RequestBody Note note) {
     ResponseResult<String> result;
     if (note == null) {
@@ -125,6 +130,7 @@ public class NoteController implements BlogConstant {
    * @return
    */
   @DeleteMapping("/delete")
+  @Log(menu = "笔记管理", description = "删除笔记")
   public ResponseResult<String> deleteNote(@RequestParam("id") Integer id) {
     ResponseResult<String> result;
     if (id == null || id == 0) {

@@ -2,6 +2,7 @@ package com.kongfu.backend.controller;
 
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.model.dto.ArticleQuery;
@@ -28,11 +29,12 @@ public class ArticleController implements BlogConstant {
   @Resource public RabbitTemplate rabbitTemplate;
 
   /**
-   * 博客列表页面
+   * 博客列表
    *
    * @return
    */
   @RequestMapping("/list")
+  @Log(menu = "博客管理", description = "获取博客列表")
   public ResponseResult<Page<Article>> List(
       @RequestBody(required = false) Map<String, Object> map) {
     Page<Article> albumPage = articleService.getArticleListPager(getArticleQuery(map));
@@ -90,6 +92,7 @@ public class ArticleController implements BlogConstant {
    * @return
    */
   @GetMapping("/getArticleById")
+  @Log(menu = "博客管理", description = "根据id获取博客")
   public ResponseResult<Article> getArticleById(@RequestParam("id") int id) {
     if (id <= 0) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
@@ -103,6 +106,7 @@ public class ArticleController implements BlogConstant {
    * @return
    */
   @GetMapping("/getAboutMeArticle")
+  @Log(menu = "博客管理", description = "获取当前用户的关于我文档")
   public ResponseResult<Article> getAboutMeArticle() {
     Article article = articleService.getAboutMeArticle();
     return new ResponseResult<>(ResponseResultCode.Success, "操作成功", article);
@@ -114,6 +118,7 @@ public class ArticleController implements BlogConstant {
    * @return
    */
   @PostMapping("/add")
+  @Log(menu = "博客管理", description = "发布/暂存文章")
   public ResponseResult<String> addArticle(@RequestBody Article article) {
     ResponseResult<String> result;
     if (article == null) {
@@ -157,6 +162,7 @@ public class ArticleController implements BlogConstant {
    * @return
    */
   @PostMapping("/update")
+  @Log(menu = "博客管理", description = "修改博客")
   public ResponseResult<String> updateArticle(@RequestBody Article article) {
     ResponseResult<String> result;
 
@@ -197,12 +203,13 @@ public class ArticleController implements BlogConstant {
   }
 
   /**
-   * 删除文章
+   * 删除博客
    *
    * @param params
    * @return
    */
   @PostMapping("/delete")
+  @Log(menu = "博客管理", description = "删除博客")
   public ResponseResult<String> deleteArticle(@RequestBody List<Integer> params) {
     ResponseResult<String> result;
     if (params == null || params.size() == 0) {
