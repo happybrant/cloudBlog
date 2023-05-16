@@ -127,21 +127,20 @@ public class BlogUtil {
   }
 
   /**
-   * 获取当前系统时间最近一个星期的日期
+   * 获取当前系统时间最近的日期
    *
    * @return
    */
-  public static List<Date> getLatestWeek() {
+  public static List<Date> getLatestDays(int days) {
     List<Date> dateList = new ArrayList<>();
     Calendar calendar = Calendar.getInstance();
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < days; i++) {
       Date date = calendar.getTime();
       dateList.add(0, date);
       calendar.add(Calendar.DATE, -1);
     }
     return dateList;
   }
-
   /**
    * 获取当前日期是星期几
    *

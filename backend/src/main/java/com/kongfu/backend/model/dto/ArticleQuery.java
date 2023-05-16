@@ -4,9 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author ：xutengfei
- * @date ：Created in 2021/11/11 19:04
- * @description：
+ * 接收前端博客查询条件
+ *
+ * @author 付聪
  */
 @Data
 @NoArgsConstructor

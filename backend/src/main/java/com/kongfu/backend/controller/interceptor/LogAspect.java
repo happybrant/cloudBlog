@@ -17,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 
 /** @Author fuCong @Date 2023/4/16 20:30 */
 @Component
@@ -53,9 +54,12 @@ public class LogAspect {
     // 打印出参
     log.info("Output Parameter : {}", result);
     AccessLog accessLog = logThreadLocal.get();
+    accessLog.setRequestTime(new Date(startTime));
     // 设置执行时间
     accessLog.setTotalMillis(System.currentTimeMillis() - startTime);
-    accessLogService.addAccessLog(accessLog);
+    if (accessLogService.addAccessLog(accessLog) > 0) {
+      log.info("日志保存成功");
+    }
     logThreadLocal.remove();
     return result;
   }

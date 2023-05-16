@@ -35,7 +35,7 @@ public class ArticleController implements BlogConstant {
    */
   @RequestMapping("/list")
   @Log(menu = "博客管理", description = "获取博客列表")
-  public ResponseResult<Page<Article>> List(
+  public ResponseResult<Page<Article>> list(
       @RequestBody(required = false) Map<String, Object> map) {
     Page<Article> albumPage = articleService.getArticleListPager(getArticleQuery(map));
     return new ResponseResult<>(ResponseResultCode.Success, "操作成功", albumPage);

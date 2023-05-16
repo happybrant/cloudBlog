@@ -36,7 +36,7 @@ public class UserController implements BlogConstant {
    */
   @PostMapping("/list")
   @Authentication(role = 1, menu = "获取用户列表")
-  @Log(menu = "用户管理", description = "获取用户列表")
+  @Log(menu = "系统管理/用户管理", description = "获取用户列表")
   public ResponseResult<Page<User>> getUserList(@RequestBody Map<String, Object> map) {
     Page<User> notePage = userService.getUserListPager(getUserQuery(map));
     return new ResponseResult<>(ResponseResultCode.Success, "操作成功", notePage);
@@ -85,7 +85,7 @@ public class UserController implements BlogConstant {
    * @return
    */
   @PostMapping("/login")
-  @Log(menu = "用户管理", description = "登录")
+  @Log(menu = "系统管理/用户管理", description = "登录")
   public ResponseResult<String> login(@RequestBody Map<String, String> map) {
     if (map == null || map.size() == 0) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空");
@@ -103,7 +103,7 @@ public class UserController implements BlogConstant {
    * @return
    */
   @GetMapping("/getUserInfo")
-  @Log(menu = "用户管理", description = "获取用户信息")
+  @Log(menu = "系统管理/用户管理", description = "获取用户信息")
   public ResponseResult<UserInfo> getUserInfo() {
     HttpServletRequest request;
     // 得到 HttpServletRequest
@@ -137,7 +137,7 @@ public class UserController implements BlogConstant {
    * @return
    */
   @PostMapping("/logout")
-  @Log(menu = "用户管理", description = "登出")
+  @Log(menu = "系统管理/用户管理", description = "登出")
   public ResponseResult<String> logout(HttpServletRequest request) {
     String ticket = request.getHeader("authorization");
     return userService.logout(ticket);
@@ -151,7 +151,7 @@ public class UserController implements BlogConstant {
    */
   @PostMapping("/add")
   @Authentication(role = 1, menu = "新增用户")
-  @Log(menu = "用户管理", description = "新增用户")
+  @Log(menu = "系统管理/用户管理", description = "新增用户")
   public ResponseResult<String> addUser(@RequestBody User user) {
     ResponseResult<String> result;
     if (user == null) {
@@ -173,7 +173,7 @@ public class UserController implements BlogConstant {
    * @return
    */
   @PostMapping("/update")
-  @Log(menu = "用户管理", description = "修改用户信息")
+  @Log(menu = "系统管理/用户管理", description = "修改用户信息")
   public ResponseResult<String> updateUser(@RequestBody User user) {
     ResponseResult<String> result;
     if (user == null) {
@@ -195,7 +195,7 @@ public class UserController implements BlogConstant {
    * @return
    */
   @PostMapping("/updatePwd")
-  @Log(menu = "用户管理", description = "修改用户密码")
+  @Log(menu = "系统管理/用户管理", description = "修改用户密码")
   public ResponseResult<String> updatePwd(@RequestBody Map<String, Object> map) {
     ResponseResult<String> result;
     if (map == null || map.size() == 0) {
@@ -240,7 +240,7 @@ public class UserController implements BlogConstant {
    */
   @GetMapping("/resetPwd")
   @Authentication(role = 1, menu = "重置密码")
-  @Log(menu = "用户管理", description = "重置密码")
+  @Log(menu = "系统管理/用户管理", description = "重置密码")
   public ResponseResult<String> resetPwd(@RequestParam("id") Integer id) {
     ResponseResult<String> result;
     User user = userService.findUserById(id);
@@ -265,7 +265,7 @@ public class UserController implements BlogConstant {
    */
   @PostMapping("/delete")
   @Authentication(role = 1, menu = "删除用户")
-  @Log(menu = "用户管理", description = "删除用户")
+  @Log(menu = "系统管理/用户管理", description = "删除用户")
   public ResponseResult<String> deleteUser(@RequestBody List<Integer> params) {
     ResponseResult<String> result;
     if (params == null || params.size() == 0) {

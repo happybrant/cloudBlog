@@ -118,8 +118,6 @@ public class TaskService {
    * @return
    */
   public Map<String, Long> getCreatedTaskByDay() {
-    // 存放最近一周每天创建的任务数量
-    List<Long> taskCountList = new ArrayList<>();
     // 获取最近一周的开始和结束时间
     String[] times = getTimeBoundary();
     QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
@@ -208,7 +206,7 @@ public class TaskService {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     // 最近一周的日期集合
-    List<Date> dateList = BlogUtil.getLatestWeek();
+    List<Date> dateList = BlogUtil.getLatestDays(7);
     for (Date date : dateList) {
       Map<String, Object> map =
           taskList.stream()

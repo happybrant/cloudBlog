@@ -4,19 +4,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author ：xutengfei
- * @date ：Created in 2021/11/11 19:04
- * @description：
+ * 接口前端笔记查询条件
+ *
+ * @author 付聪
  */
 @Data
 @NoArgsConstructor
 public class NoteQuery {
 
-    private String title;
+  private String title;
 
-    private String createTime;
+  private String createTime;
 
-    private Integer pageSize;
+  private Integer pageSize;
 
-    private Integer pageIndex;
+  private Integer pageIndex;
 }

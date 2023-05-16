@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.List;
 
-/** @Author fuCong @Date 2023/2/8 17:18 */
+/** 接收前端设置属性 @Author fuCong @Date 2023/2/8 17:18 */
 @Data
 @AllArgsConstructor
 public class SettingDto {
