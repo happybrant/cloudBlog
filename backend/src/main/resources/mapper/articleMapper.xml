@@ -33,7 +33,7 @@
         select
         <include refid="selectFields"></include>
         from (select * from ts_article
-        where ts_article.`status` != 0
+        where ts_article.`status` in(1,2)
         <if test="categoryId != null">
             and ts_article.category_id = #{categoryId}
         </if>
@@ -71,7 +71,7 @@
             parameterType="com.kongfu.backend.model.dto.ArticleQuery">
         select count(*)
         from ts_article
-        where ts_article.`status` != 0
+        where ts_article.`status` in(1,2)
         <if test="categoryId != null">
             and ts_article.category_id = #{categoryId}
         </if>

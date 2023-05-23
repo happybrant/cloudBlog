@@ -28,6 +28,10 @@ public class AccessLog extends Entity {
   /** 访问ip */
   @TableField("ip")
   private String ip;
+
+  /** 请求用户 */
+  @TableField("username")
+  private String username;
   /** 请求参数 */
   @TableField("params")
   private String params;
