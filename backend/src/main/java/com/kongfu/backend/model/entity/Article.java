@@ -36,6 +36,11 @@ public class Article extends Entity {
 
   @TableField("category_id")
   private int categoryId;
+
+  /** 博客作者名称 */
+  @TableField(exist = false)
+  private String createUsername;
+
   /** 分类名称 */
   @TableField(exist = false)
   private String categoryName;

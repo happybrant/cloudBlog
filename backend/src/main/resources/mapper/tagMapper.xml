@@ -4,52 +4,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kongfu.backend.dao.TagMapper">
 
-    <!--查找所有标签及其对应的博客数量-->
-    <select id="selectTagCategory" resultType="java.util.Map">
-        select A.`name`,A.`order`,count(*) AS Count
-        from (
-        select tr_article_tag.*,ts_tag.name,ts_tag.`order`
-        from tr_article_tag
-        left join ts_tag on ts_tag.id = tr_article_tag.tag_id
-        where ts_tag.`status` != 0) as A
-        group by A.`name`,A.`order`
-        ORDER BY A.`order`
-    </select>
 
-    <!--查找所有标签的数量-->
-    <select id="selectTagCount" resultType="int">
-        select count(*) from ts_tag where `status` != 0
-    </select>
-
-    <!--分页查找标签-->
-    <select id="selectTags" resultType="Tag">
-        select * from ts_tag where `status` != 0 order by `order` limit #{offset},#{limit}
-    </select>
-
-    <!--根据标签名称查询标签详情-->
-    <select id="selectTag" parameterType="String" resultType="Tag">
-        select * from ts_tag where `name` = #{tagName} and `status` != 0
-    </select>
-
-    <!--根据标签id查询标签详情-->
-    <select id="selectTagById" parameterType="int" resultType="Tag">
-        select * from ts_tag where id = #{id} and `status` != 0
-    </select>
     <!--计算当前order是第几个有效数据-->
-    <select id="selectCurrentIndex" parameterType="int" resultType="int">
-        select COUNT(*) as num from (select * from ts_tag where `status` != 0 ORDER BY `order`) A where A.id &lt;=
-        #{order}
-    </select>
-    <!--   根据order排序后，获取上一条数据-->
-    <select id="selectPreTag" parameterType="int" resultType="Tag">
-        select * from ts_tag where `order` = (select MAX(`order`) from ts_tag where `status` != 0 and `order` &lt;
-        #{order} order by `order`)
-    </select>
-    <!--根据order排序后，获取下一条数据-->
-    <select id="selectNextTag" parameterType="int" resultType="Tag">
-        select * from ts_tag where `order` = (select MIN(`order`) from ts_tag where `status` != 0 and `order` &gt;
-        #{order} order by `order`)
-    </select>
+    <!--    <select id="selectCurrentIndex" parameterType="int" resultType="int">-->
+    <!--        select COUNT(*) as num from (select * from ts_tag where `status` != 0 ORDER BY `order`) A where A.id &lt;=-->
+    <!--        #{order}-->
+    <!--    </select>-->
+    <!--    &lt;!&ndash;   根据order排序后，获取上一条数据&ndash;&gt;-->
+    <!--    <select id="selectPreTag" parameterType="int" resultType="Tag">-->
+    <!--        select * from ts_tag where `order` = (select MAX(`order`) from ts_tag where `status` != 0 and `order` &lt;-->
+    <!--        #{order} order by `order`)-->
+    <!--    </select>-->
+    <!--    &lt;!&ndash;根据order排序后，获取下一条数据&ndash;&gt;-->
+    <!--    <select id="selectNextTag" parameterType="int" resultType="Tag">-->
+    <!--        select * from ts_tag where `order` = (select MIN(`order`) from ts_tag where `status` != 0 and `order` &gt;-->
+    <!--        #{order} order by `order`)-->
+    <!--    </select>-->
 
     <!--插入/添加标签博客关联关系-->
     <insert id="insertTagArticle" parameterType="TagArticle" keyProperty="id">
@@ -63,46 +33,4 @@
     <delete id="deleteTagArticle" parameterType="int">
         DELETE FROM tr_article_tag WHERE article_id = #{articleId}
     </delete>
-    <!--插入一条标签数据-->
-    <insert id="insertTag" parameterType="Tag" keyProperty="id">
-        insert into ts_tag(`name`, `order`,code,status, create_time, last_update_time)
-        values(#{name}, (select temp.`order` from (select MAX(`order`) + 1 AS `order` from tag) temp),
-        #{code}, 1, #{createTime}, #{lastUpdateTime})
-    </insert>
-
-
-    <!--批量删除数据-->
-    <update id="batchDeleteTags">
-        update tag
-        set `status` = 0
-        where id in
-        <foreach item="id" collection="ids" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </update>
-    <!--修改标签状态-->
-    <update id="updateState">
-        update tag set `status` = #{status} where id = #{id}
-    </update>
-
-    <!--修改分类-->
-    <update id="updateTag" parameterType="Tag">
-        update tag
-        <set>
-            <if test="name != null">
-                `name` = #{name},
-            </if>
-            <if test="order != 0">
-                `order` = #{order},
-            </if>
-            <if test="code != null">
-                code = #{code},
-            </if>
-            <if test="status != null">
-                status = #{status},
-            </if>
-            last_update_time = #{lastUpdateTime}
-        </set>
-        where id = #{id}
-    </update>
 </mapper>

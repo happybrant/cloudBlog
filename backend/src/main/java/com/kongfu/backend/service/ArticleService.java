@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.dao.ArticleMapper;
 import com.kongfu.backend.model.dto.ArticleQuery;
+import com.kongfu.backend.model.dto.QueryBase;
 import com.kongfu.backend.model.entity.Article;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,7 +23,7 @@ public class ArticleService {
 
   @Resource public ArticleMapper articleMapper;
   @Resource public HostHolder holder;
-  @Resource private RestHighLevelClient client;
+
   /**
    * 博客列表，支持分页和条件查询
    *
@@ -55,7 +55,9 @@ public class ArticleService {
    * @return
    */
   public Article getArticleById(int id) {
-    return articleMapper.selectArticleById(id);
+    ArticleQuery query = new ArticleQuery();
+    query.setId(id);
+    return articleMapper.selectArticleById(query);
   }
   /**
    * 获取当前用户的关于我文档
@@ -161,7 +163,7 @@ public class ArticleService {
    * @return
    */
   public Map<String, Long> getArticleByCategory() {
-    List<Map<String, Object>> articleList = articleMapper.selectArticleByCategory();
+    List<Map<String, Object>> articleList = articleMapper.selectArticleByCategory(new QueryBase());
     Map<String, Long> articleMap = new LinkedHashMap<>(16);
     for (Map<String, Object> map : articleList) {
       articleMap.put(map.get("CategoryName").toString(), (Long) map.get("Count"));
@@ -175,10 +177,8 @@ public class ArticleService {
    * @return
    */
   public Map<String, Long> getArticleByTag() {
-    List<Map<String, Object>> articleList = articleMapper.selectArticleByTag();
-    QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
-    queryWrapper.ne("status", BlogConstant.DELETE_STATUS);
-    Long total = articleMapper.selectCount(queryWrapper);
+    List<Map<String, Object>> articleList = articleMapper.selectArticleByTag(new QueryBase());
+    long total = articleList.stream().mapToLong(r -> (long) r.get("Count")).sum();
 
     Map<String, Long> articleMap = new LinkedHashMap<>(16);
     if (total > 0) {

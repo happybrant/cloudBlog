@@ -14,7 +14,7 @@ public class MapUtil {
   public static String getValueAsString(Map<String, Object> map, String key, String defaultValue) {
     String value = defaultValue;
 
-    if (map != null && !StringUtils.isEmpty(key) && map.containsKey(key)) {
+    if (map != null && !StringUtils.isEmpty(key) && map.containsKey(key) && map.get(key) != null) {
       value = map.get(key).toString();
     }
     return value;

@@ -7,7 +7,8 @@
     <sql id="selectFields">
         ts_article.id, title, content, origin_content, category_id, cover_url,ts_article.description, ts_article.status,
         ts_article.create_time,
-        ts_category.path AS category_name, ts_tag.id AS tag_id,ts_tag.name AS tag_name
+        ts_category.path AS category_name, ts_tag.id AS tag_id,ts_tag.name AS tag_name,
+        ts_user.displayName AS create_username
     </sql>
 
     <resultMap type="Article" id="articleResultMap">
@@ -21,6 +22,7 @@
         <result column="category_name" property="categoryName"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
+        <result column="create_username" property="createUsername"/>
         <collection property="tags" ofType="Tag">
             <id column="tag_id" property="id"/>
             <result column="tag_name" property="name"/>
@@ -44,6 +46,9 @@
         <if test="title != null and !title.equals('')">
             and ts_article.title like "%"#{title}"%"
         </if>
+        <if test="createUser != null">
+            and ts_article.create_user = #{createUser}
+        </if>
         order by ts_article.create_time desc
         <if test="pageSize != null and pageSize != 0">
             <choose>
@@ -59,6 +64,7 @@
         left join ts_category ON ts_article.category_id = ts_category.id
         left join tr_article_tag ON ts_article.id = tr_article_tag.article_id
         left join ts_tag ON ts_tag.id = tr_article_tag.tag_id and ts_tag.`status` != 0 or ts_tag.`status` is null
+        left join ts_user ON ts_user.id = ts_article.create_user
     </select>
     <!--查找博客总数-->
     <select id="selectArticleCount" resultType="java.lang.Integer"
@@ -78,9 +84,13 @@
         <if test="title != null and !title.equals('')">
             and ts_article.title like "%"#{title}"%"
         </if>
+        <if test="createUser != null">
+            and ts_article.create_user = #{createUser}
+        </if>
     </select>
     <!--根据博客id查找博客，关联分类和标签-->
-    <select id="selectArticleById" parameterType="int" resultMap="articleResultMap">
+    <select id="selectArticleById" parameterType="com.kongfu.backend.model.dto.ArticleQuery"
+            resultMap="articleResultMap">
         select
         <include refid="selectFields"></include>
         from ts_article
@@ -88,11 +98,16 @@
         left join tr_article_tag ON ts_article.id = tr_article_tag.article_id
         left join ts_tag ON tr_article_tag.tag_id = ts_tag.id
         and ts_tag.`status` != 0 or ts_tag.`status` is null
+        left join ts_user ON ts_user.id = ts_article.create_user
         where ts_article.id = #{id}
+        <if test="createUser != null">
+            and ts_article.create_user = #{createUser}
+        </if>
     </select>
 
     <!--根据博客的分类对博客进行分组-->
-    <select id="selectArticleByCategory" resultType="java.util.Map">
+    <select id="selectArticleByCategory" parameterType="com.kongfu.backend.model.dto.QueryBase"
+            resultType="java.util.Map">
         SELECT
         SUBSTR( SUBSTRING_INDEX( category.path, '/', 2 ), 2 ) AS CategoryName,
         COUNT( 1 ) AS Count
@@ -101,18 +116,26 @@
         LEFT JOIN ts_category category ON article.category_id = category.id
         WHERE
         article.`status` != 0 AND category.`status` != 0
+        <if test="createUser != null">
+            and article.create_user = #{createUser}
+        </if>
         GROUP BY
         CategoryName
     </select>
 
     <!--根据博客的标签对博客进行分组-->
-    <select id="selectArticleByTag" resultType="java.util.Map">
+    <select id="selectArticleByTag" parameterType="com.kongfu.backend.model.dto.QueryBase" resultType="java.util.Map">
         SELECT
         ts_tag.`name` AS TagName,count(*) AS Count
         FROM
         (SELECT * FROM ts_tag WHERE ts_tag.`status` != 0)ts_tag
         INNER JOIN tr_article_tag ON ts_tag.id = tr_article_tag.tag_id
-        INNER JOIN (SELECT * FROM ts_article WHERE ts_article.`status` != 0 )ts_article
+        INNER JOIN (
+        SELECT * FROM ts_article WHERE ts_article.`status` != 0
+        <if test="createUser != null">
+            and ts_article.create_user = #{createUser}
+        </if>
+        ) ts_article
         ON ts_article.id = tr_article_tag.article_id
         GROUP BY ts_tag.id
     </select>

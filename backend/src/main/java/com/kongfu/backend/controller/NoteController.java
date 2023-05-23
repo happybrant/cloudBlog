@@ -1,6 +1,5 @@
 package com.kongfu.backend.controller;
 
-import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
@@ -9,6 +8,7 @@ import com.kongfu.backend.model.dto.NoteQuery;
 import com.kongfu.backend.model.entity.Note;
 import com.kongfu.backend.service.NoteService;
 import com.kongfu.backend.util.BlogConstant;
+import com.kongfu.backend.util.MapUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,22 +44,12 @@ public class NoteController implements BlogConstant {
     NoteQuery query = new NoteQuery();
     query.setPageIndex(0);
     query.setPageSize(Integer.MAX_VALUE);
+    query.setTitle("");
     if (map != null && map.size() > 0) {
-      Object pageIndex = map.get("pageIndex");
-      Object pageSize = map.get("pageSize");
-      if (pageSize != null && pageIndex != null) {
-        if (StringUtils.isNumber(pageIndex.toString())
-            && StringUtils.isNumber(pageSize.toString())) {
-          query.setPageSize((Integer) pageSize);
-          query.setPageIndex((Integer) pageIndex);
-        }
-      }
-      Object title = map.get("title");
-      if (title != null) {
-        query.setTitle(title.toString());
-      }
+      query.setPageIndex(MapUtil.getValueAsInteger(map, "pageIndex", 1));
+      query.setPageSize(MapUtil.getValueAsInteger(map, "pageSize", 10));
+      query.setTitle(MapUtil.getValueAsString(map, "title"));
     }
-
     return query;
   }
 

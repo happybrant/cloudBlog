@@ -7,11 +7,9 @@ import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.UserMapper;
 import com.kongfu.backend.model.dto.UserQuery;
 import com.kongfu.backend.model.entity.User;
-import com.kongfu.backend.model.vo.LoginTicket;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
-import com.kongfu.backend.util.RedisKeyUtil;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,10 @@ public class UserService implements BlogConstant {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "用户名或密码为空");
     }
     // 验证账号
-    User user = userMapper.selectByName(username);
+    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+    queryWrapper.eq("username", username);
+    queryWrapper.ne("status", 0);
+    User user = userMapper.selectOne(queryWrapper);
     if (user == null) {
       return new ResponseResult<>(ResponseResultCode.Error, "该账号不存在");
     }
@@ -145,24 +146,13 @@ public class UserService implements BlogConstant {
   }
 
   /**
-   * 根据 ticket 查询 LoginTicket 信息
-   *
-   * @param ticket
-   * @return
-   */
-  public LoginTicket findLoginTicket(String ticket) {
-    String redisKey = RedisKeyUtil.getTicketKey(ticket);
-    return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
-  }
-
-  /**
    * 根据id查找用户
    *
    * @param userId
    * @return
    */
   public User findUserById(int userId) {
-    return userMapper.selectByUserId(userId);
+    return userMapper.selectById(userId);
   }
 
   /**

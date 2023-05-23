@@ -97,7 +97,7 @@ public class AccessLogService {
   }
 
   /**
-   * 根据日期对查询出最近一周的任务数量进行分组
+   * 根据日期对查询出最近一周的日志数量进行分组
    *
    * @param logList
    * @return

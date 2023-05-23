@@ -38,10 +38,10 @@ public interface BlogConstant {
   int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 100;
 
   /** 权限：普通用户 */
-  String AUTHORITY_USER = "user";
+  int AUTHORITY_USER = 2;
 
   /** 权限：管理员 */
-  String AUTHORITY_ADMIN = "admin";
+  int AUTHORITY_ADMIN = 1;
 
   /** Kafka 主题：发布新博客 */
   String TOPIC_PUBLISH = "publish";

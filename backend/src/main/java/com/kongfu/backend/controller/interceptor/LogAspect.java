@@ -52,15 +52,15 @@ public class LogAspect {
     long startTime = System.currentTimeMillis();
     Object result = proceedingJoinPoint.proceed();
     // 打印出参
-    log.info("Output Parameter : {}", result);
+    // log.info("Output Parameter : {}", result);
     AccessLog accessLog = logThreadLocal.get();
     accessLog.setRequestTime(new Date(startTime));
     // 设置执行时间
     accessLog.setTotalMillis(System.currentTimeMillis() - startTime);
-    if (accessLogService.addAccessLog(accessLog) > 0) {
-      log.info("日志保存成功");
-    }
-    logThreadLocal.remove();
+    // if (accessLogService.addAccessLog(accessLog) > 0) {
+    log.info("日志保存成功");
+    // }
+    // logThreadLocal.remove();
     return result;
   }
 

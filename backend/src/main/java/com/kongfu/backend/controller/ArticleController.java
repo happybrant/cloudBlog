@@ -1,6 +1,5 @@
 package com.kongfu.backend.controller;
 
-import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
@@ -11,6 +10,7 @@ import com.kongfu.backend.model.entity.TagArticle;
 import com.kongfu.backend.service.ArticleService;
 import com.kongfu.backend.service.TagService;
 import com.kongfu.backend.util.BlogConstant;
+import com.kongfu.backend.util.MapUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,32 +54,15 @@ public class ArticleController implements BlogConstant {
       query.setPageIndex(0);
       query.setPageSize(Integer.MAX_VALUE);
     } else {
-      Object pageIndex = map.get("pageIndex");
-      Object pageSize = map.get("pageSize");
-      if (pageSize != null && pageIndex != null) {
-        if (StringUtils.isNumber(pageIndex.toString())
-            && StringUtils.isNumber(pageSize.toString())) {
-          query.setPageSize((Integer) pageSize);
-          query.setPageIndex((Integer) pageIndex);
-          query.setStartRow((Integer) pageSize * ((Integer) pageIndex - 1));
-        }
-      }
-      Object status = map.get("status");
-      if (status != null && StringUtils.isNumber(status.toString())) {
-        query.setStatus((Integer) status);
-      }
-      Object categoryId = map.get("categoryId");
-      if (categoryId != null && StringUtils.isNumber(categoryId.toString())) {
-        query.setCategoryId((Integer) categoryId);
-      }
-      Object title = map.get("title");
-      if (title != null) {
-        query.setTitle(title.toString());
-      }
-      Object createTime = map.get("createTime");
-      if (createTime != null) {
-        query.setCreateTime(createTime.toString());
-      }
+      int pageIndex = MapUtil.getValueAsInteger(map, "pageIndex", 1);
+      int pageSize = MapUtil.getValueAsInteger(map, "pageSize", 10);
+      query.setPageSize(pageSize);
+      query.setPageIndex(pageIndex);
+      query.setStartRow(pageSize * (pageIndex - 1));
+      query.setStatus(MapUtil.getValueAsInteger(map, "status", null));
+      query.setCategoryId(MapUtil.getValueAsInteger(map, "categoryId", null));
+      query.setTitle(MapUtil.getValueAsString(map, "title"));
+      query.setCreateTime(MapUtil.getValueAsString(map, "createTime"));
     }
 
     return query;

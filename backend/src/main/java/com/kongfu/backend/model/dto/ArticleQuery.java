@@ -10,19 +10,12 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class ArticleQuery {
+public class ArticleQuery extends QueryBase {
+  private Integer id;
 
   private String title;
 
   private Integer categoryId;
 
   private Integer status;
-
-  private String createTime;
-
-  private Integer pageSize;
-
-  private Integer pageIndex;
-
-  private Integer startRow;
 }

@@ -1,6 +1,8 @@
 package com.kongfu.backend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kongfu.backend.dao.CategoryMapper;
+import com.kongfu.backend.model.dto.CategoryQuery;
 import com.kongfu.backend.model.entity.Category;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
@@ -24,7 +26,8 @@ public class CategoryService {
    * @return
    */
   public List<Category> getCategoryList() {
-    List<Category> categoryList = categoryMapper.selectCategoryList();
+    QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+    List<Category> categoryList = categoryMapper.selectList(queryWrapper);
     // 获取所有的一级分类
     List<Category> rootCategories =
         categoryList.stream().filter(s -> s.getParentId() == 0).collect(Collectors.toList());
@@ -86,43 +89,14 @@ public class CategoryService {
   }
 
   /**
-   * 根据分类名称查询分类详情
-   *
-   * @param category
-   * @return
-   */
-  public Category findCategory(String category) {
-    return categoryMapper.selectCategory(category);
-  }
-
-  /**
-   * 根据分类ID查询分类详情
-   *
-   * @param id
-   * @return
-   */
-  public Category findCategoryById(int id) {
-    return categoryMapper.selectCategoryById(id);
-  }
-
-  /**
-   * 根据父分类下查找所有下属子分类
-   *
-   * @param category
-   * @return
-   */
-  public List<Category> findChildrenCategories(String category) {
-    List<Category> categories = categoryMapper.selectChildrenCategories(category);
-    return categories;
-  }
-
-  /**
    * 根据某个子分类查找所有的兄弟分类，包括自身
    *
    * @param name
    * @return
    */
   public List<Category> findSiblingCategories(String name) {
-    return categoryMapper.selectSiblingCategories(name);
+    CategoryQuery categoryQuery = new CategoryQuery();
+    categoryQuery.setName(name);
+    return categoryMapper.selectSiblingCategories(categoryQuery);
   }
 }

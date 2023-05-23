@@ -110,21 +110,6 @@ public class CategoryController {
   }
 
   /**
-   * 根据父分类获取子分类
-   *
-   * @param rootCategory
-   * @return
-   */
-  @RequestMapping("getChildrenCategories/{rootCategory}")
-  @ResponseBody
-  @Log(menu = "个人中心/博客设置", description = "根据父分类获取子分类")
-  public ResponseResult<List<Category>> getChildrenCategories(
-      @PathVariable("rootCategory") String rootCategory) {
-    List<Category> categoryList = categoryService.findChildrenCategories(rootCategory);
-    return new ResponseResult<>(ResponseResultCode.Success, "操作成功", categoryList);
-  }
-
-  /**
    * 移动分类
    *
    * @param type
@@ -140,7 +125,7 @@ public class CategoryController {
       for (int i = 0; i < siblingCategories.size(); i++) {
         Category category = siblingCategories.get(i);
         if (category.getName().equals(name)) {
-          if (type.equals("up")) {
+          if ("up".equals(type)) {
             // 获取上一个节点
             if (i == 0) {
               return new ResponseResult<>(ResponseResultCode.Error, "首节点无法上移");
