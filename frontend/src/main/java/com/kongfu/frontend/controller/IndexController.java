@@ -35,4 +35,14 @@ public class IndexController {
   public String getDefaultRouting() {
     return settingService.getDefaultRouting();
   }
+
+  /**
+   * 获取管理员路由
+   *
+   * @return
+   */
+  @GetMapping("/getDefaultRouting1")
+  public String getDefaultRouting1() {
+    return settingService.getDefaultRouting();
+  }
 }
