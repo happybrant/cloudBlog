@@ -13,6 +13,7 @@ import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.MapUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class ArticleController implements BlogConstant {
   @Resource public ArticleService articleService;
   @Resource public TagService tagService;
   @Resource public RabbitTemplate rabbitTemplate;
+  @Resource private RestTemplate restTemplate;
 
   /**
    * 博客列表
@@ -130,12 +132,25 @@ public class ArticleController implements BlogConstant {
         map.put("articleId", article.getId());
         map.put("type", "insert");
         rabbitTemplate.convertAndSend("article", map);
+        // 更新缓存
+        String url = "http://localhost:8080/testGet";
+        // 发起请求,直接返回对象
+        String responseBean = restTemplate.getForObject(url, String.class);
+        System.out.println(responseBean);
       }
       result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
     } else {
       result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
     }
     return result;
+  }
+
+  @RequestMapping("/test")
+  public void test() {
+    String url = "http://localhost:8084/home/refreshStatisticCache?router=" + "scurry";
+    // 发起请求,直接返回对象
+    String responseBean = restTemplate.getForObject(url, String.class);
+    System.out.println(responseBean);
   }
 
   /**

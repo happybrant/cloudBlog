@@ -54,8 +54,6 @@ public class LogAspect {
     log.info("============ doAround ==========");
     long startTime = System.currentTimeMillis();
     Object result = proceedingJoinPoint.proceed();
-    // 打印出参
-    log.info("Output Parameter : {}", result);
     AccessLog accessLog = logThreadLocal.get();
     accessLog.setRequestTime(new Date(startTime));
     LoginToken loginToken = holder.getUser();

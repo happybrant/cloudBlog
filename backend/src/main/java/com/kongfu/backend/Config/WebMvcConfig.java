@@ -30,7 +30,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     registry
         .addInterceptor(authInterceptor)
         .addPathPatterns("/**")
-        .excludePathPatterns("/user/login/**", "/user/logout/**", "/file/upload/**");
+        .excludePathPatterns(
+            "/user/login/**", "/user/logout/**", "/file/upload/**", "/article/test");
   }
 
   @Override

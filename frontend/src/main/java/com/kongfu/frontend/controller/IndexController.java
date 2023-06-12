@@ -36,13 +36,14 @@ public class IndexController {
     return settingService.getDefaultRouting();
   }
 
-  /**
-   * 获取管理员路由
-   *
-   * @return
-   */
-  @GetMapping("/getDefaultRouting1")
-  public String getDefaultRouting1() {
-    return settingService.getDefaultRouting();
+  /** 提供查询最新的接口给后台管理服务 */
+  @GetMapping("/refreshStatisticCache")
+  public String refreshStatisticCache(@RequestParam String router) {
+    indexService.calculateStatistic(router);
+    return "success";
+  }
+
+  public void refreshSettingCache(String router) {
+    indexService.calculateSetting(router);
   }
 }

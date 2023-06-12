@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /** @author 付聪 */
 @Data
-public class Entity {
+public class Entity implements Serializable {
   @TableId(value = "id", type = IdType.AUTO)
   private Integer id;
   /** 创建人 */

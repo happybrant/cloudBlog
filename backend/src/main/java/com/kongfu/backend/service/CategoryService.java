@@ -27,6 +27,7 @@ public class CategoryService {
    */
   public List<Category> getCategoryList() {
     QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+    queryWrapper.eq("status", 1);
     List<Category> categoryList = categoryMapper.selectList(queryWrapper);
     // 获取所有的一级分类
     List<Category> rootCategories =
