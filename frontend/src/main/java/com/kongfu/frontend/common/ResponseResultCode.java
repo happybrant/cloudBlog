@@ -1,4 +1,4 @@
-package com.kongfu.backend.common;
+package com.kongfu.frontend.common;
 
 import io.swagger.annotations.ApiModelProperty;
 

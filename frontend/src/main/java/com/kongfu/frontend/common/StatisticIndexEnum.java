@@ -1,6 +1,6 @@
-package com.fiberhome.jy.dataexchange.common;
+package com.kongfu.frontend.common;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,39 +10,43 @@ import java.util.List;
  * @date: 2023/5/30
  */
 public enum StatisticIndexEnum {
-  INTERFACENUM("interfaceNum", "接口数量"),
 
-  GROUPNUM("groupNum", "接口分组数量"),
-  TABLENUM("tableNum", "结构化表数量"),
-  SCHEMANUM("schemaNum", "模式数量"),
-  PLANNUM("planNum", "计划任务数量"),
-  ACCESSUSERNUM("accessUserNum", "接入用户数量"),
-  UNSTRUCTUREDDATANUM("unStructuredDataNum", "非结构化数据量"),
-  UNSTRUCTUREDDATASIZE("unStructuredDataSize", "非结构化数据大小"),
-  STRUCTUREDDATANUM("structuredDataNum", "结构化数据量"),
-  STRUCTUREDDATASIZE("structuredDataSize", "结构化数据大小"),
-  TABLEINFOS("tableInfos", "结构化表情况");
+  /** 各个分类下博客的数量 */
+  CATEGORIES("categories", "各个分类下博客的数量"),
+  /** 各个月份下博客的数量 */
+  ARTICLEMAP("articleMap", "各个月份下博客的数量"),
+  /** 各个标签下博客的数量 */
+  TAGMAP("tagMap", "各个标签下博客的数量"),
+  /** 近期发布的文章 */
+  RECENTPOSTS("recentPosts", "近期发布的文章"),
+  /** 博客设置 */
+  SETTING("setting", "博客设置"),
+  /** 发布的博客总数 */
+  ARTICLECOUNT("articleCount", "发布的博客总数"),
+  /** 分类的总数 */
+  CATEGORYCOUNT("categoryCount", "发布的博客总数"),
+  /** 标签的总数 */
+  TAGCOUNT("tagCount", "标签的总数");
 
   public String redisKey;
 
-  public String redisMean;
+  public String value;
 
-  StatisticIndexEnum(String redisKey, String redisMean) {
+  StatisticIndexEnum(String redisKey, String value) {
     this.redisKey = redisKey;
-    this.redisMean = redisMean;
+    this.value = value;
   }
 
-  public static List<String> IndexAll() {
-    return Arrays.asList(
-        INTERFACENUM.redisKey,
-        GROUPNUM.redisKey,
-        TABLENUM.redisKey,
-        SCHEMANUM.redisKey,
-        PLANNUM.redisKey,
-        ACCESSUSERNUM.redisKey,
-        UNSTRUCTUREDDATANUM.redisKey,
-        UNSTRUCTUREDDATASIZE.redisKey,
-        STRUCTUREDDATANUM.redisKey,
-        STRUCTUREDDATASIZE.redisKey);
+  /**
+   * 获取所有的key
+   *
+   * @return
+   */
+  public static List<String> getRedisKeys() {
+    List<String> keys = new ArrayList<>();
+    for (StatisticIndexEnum statisticIndexEnum : StatisticIndexEnum.values()) {
+      keys.add(statisticIndexEnum.redisKey);
+    }
+    return keys;
   }
 }

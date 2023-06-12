@@ -35,4 +35,15 @@ public class IndexController {
   public String getDefaultRouting() {
     return settingService.getDefaultRouting();
   }
+
+  /** 提供查询最新的接口给后台管理服务 */
+  @GetMapping("/refreshStatisticCache")
+  public String refreshStatisticCache(@RequestParam String router) {
+    indexService.calculateStatistic(router);
+    return "success";
+  }
+
+  public void refreshSettingCache(String router) {
+    indexService.calculateSetting(router);
+  }
 }

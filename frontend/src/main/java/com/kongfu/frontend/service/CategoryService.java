@@ -2,7 +2,6 @@ package com.kongfu.frontend.service;
 
 import com.kongfu.frontend.dao.CategoryMapper;
 import com.kongfu.frontend.entity.Category;
-import com.kongfu.frontend.entity.HostHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
   @Resource public CategoryMapper categoryMapper;
-  @Resource HostHolder hostHolder;
 
   /**
    * 查找分类

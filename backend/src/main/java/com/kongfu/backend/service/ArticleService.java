@@ -138,7 +138,11 @@ public class ArticleService {
    */
   public Map<String, Long> getArticleByMonth() {
     QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
-    queryWrapper.ne("status", BlogConstant.DELETE_STATUS);
+    queryWrapper.notIn(
+        "status",
+        BlogConstant.DELETE_STATUS,
+        BlogConstant.ABOUT_ME_STATUS,
+        BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS);
     queryWrapper.groupBy("DATE_FORMAT(create_time,'%Y-%m')");
     queryWrapper.select(" DATE_FORMAT(create_time,'%Y-%m') AS Month,COUNT(*) AS Count");
     List<Map<String, Object>> noteList = articleMapper.selectMaps(queryWrapper);

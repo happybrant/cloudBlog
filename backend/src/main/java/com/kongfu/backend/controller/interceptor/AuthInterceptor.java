@@ -118,7 +118,6 @@ public class AuthInterceptor implements HandlerInterceptor {
   @Override
   public void afterCompletion(
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-    System.out.println("删除了thread");
     holder.clear();
   }
 }

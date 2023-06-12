@@ -3,10 +3,12 @@ package com.kongfu.frontend.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** @Author fuCong @Date 2023/2/8 17:18 */
 @Data
 @TableName(value = "ts_setting")
+@NoArgsConstructor
 public class Setting extends Entity {
 
   @TableField("name")

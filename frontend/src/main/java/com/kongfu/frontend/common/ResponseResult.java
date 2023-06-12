@@ -1,4 +1,4 @@
-package com.kongfu.backend.common;
+package com.kongfu.frontend.common;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

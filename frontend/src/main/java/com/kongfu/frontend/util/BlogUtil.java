@@ -1,6 +1,5 @@
 package com.kongfu.frontend.util;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -10,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/** @author 付聪 */
 public class BlogUtil {
 
   /**
@@ -97,45 +97,6 @@ public class BlogUtil {
   }
 
   /**
-   * 将服务端返回的消息封装成 JSON 格式的字符串
-   *
-   * @param code 状态码
-   * @param msg 提示消息
-   * @param map 业务数据
-   * @return 返回 JSON 格式字符串
-   */
-  public static String getJSONString(int code, String msg, Map<String, Object> map) {
-    JSONObject json = new JSONObject();
-    json.put("code", code);
-    json.put("msg", msg);
-    if (map != null) {
-      for (String key : map.keySet()) {
-        json.put(key, map.get(key));
-      }
-    }
-    return json.toJSONString();
-  }
-
-  // 重载 getJSONString 方法，服务端方法可能不返回业务数据
-  public static String getJSONString(int code, String msg) {
-    return getJSONString(code, msg, null);
-  }
-
-  // 重载 getJSONString 方法，服务端方法可能不返回业务数据和提示消息
-  public static String getJSONString(int code) {
-    return getJSONString(code, null, null);
-  }
-
-  // editor.md 要求返回的 JSON 字符串格式
-  public static String getEditorMdJSONString(int success, String message, String url) {
-    JSONObject json = new JSONObject();
-    json.put("success", success);
-    json.put("message", message);
-    json.put("url", url);
-    return json.toJSONString();
-  }
-
-  /**
    * 生成指定位数的数字随机数, 最高不超过 9 位
    *
    * @param length
@@ -149,17 +110,62 @@ public class BlogUtil {
   }
 
   /**
-   * 测试
+   * 获取当前系统时间最近12月的年月（含当月）
    *
-   * @param args
+   * @return
    */
-  public static void main(String[] args) {
-    Map<String, Object> map = new HashMap<>();
-    map.put("name", "Jack");
-    map.put("age", 18);
-    // {"msg":"ok","code":0,"name":"Jack","age":18}
-    System.out.println(getJSONString(0, "ok", map));
-    double haha = Math.random();
-    System.out.println(haha);
+  public static List<String> getLatest12Month() {
+    List<String> monthList = new ArrayList<>();
+    Calendar from = Calendar.getInstance();
+    from.setTime(new Date());
+    for (int i = 0; i < 12; i++) {
+      String month = from.get(Calendar.YEAR) + "-" + fillZero(from.get(Calendar.MONTH) + 1);
+      monthList.add(0, month);
+      from.add(Calendar.MONTH, -1);
+    }
+    return monthList;
+  }
+
+  /**
+   * 获取当前系统时间最近的日期
+   *
+   * @return
+   */
+  public static List<Date> getLatestDays(int days) {
+    List<Date> dateList = new ArrayList<>();
+    Calendar calendar = Calendar.getInstance();
+    for (int i = 0; i < days; i++) {
+      Date date = calendar.getTime();
+      dateList.add(0, date);
+      calendar.add(Calendar.DATE, -1);
+    }
+    return dateList;
+  }
+  /**
+   * 获取当前日期是星期几
+   *
+   * @param date
+   * @return
+   */
+  public static String getWeekOfDate(Date date) {
+    String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
+    if (w < 0) {
+      w = 0;
+    }
+    return weekDays[w];
+  }
+
+  /** 格式化月份 */
+  public static String fillZero(int i) {
+    String month = "";
+    if (i < 10) {
+      month = "0" + i;
+    } else {
+      month = String.valueOf(i);
+    }
+    return month;
   }
 }
