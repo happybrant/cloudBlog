@@ -3,6 +3,7 @@ package com.kongfu.frontend.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  *
  * @author 付聪
  */
+@NoArgsConstructor
 @Data
 @TableName(value = "ts_category")
 public class Category extends Entity {
@@ -41,4 +43,14 @@ public class Category extends Entity {
 
   @TableField(exist = false)
   private List<Category> children;
+
+  public Category(
+      int id, String name, int parentId, String path, int count, List<Category> children) {
+    this.setId(id);
+    this.name = name;
+    this.parentId = parentId;
+    this.path = path;
+    this.count = count;
+    this.children = children;
+  }
 }

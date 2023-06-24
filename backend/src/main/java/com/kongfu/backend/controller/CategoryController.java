@@ -41,17 +41,10 @@ public class CategoryController {
   @PostMapping("/add")
   @Log(menu = "个人中心/博客设置", description = "新增分类")
   public ResponseResult<String> addCategory(@RequestBody Category category) {
-    ResponseResult<String> result;
     if (category == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
-    int i = categoryService.addCategory(category);
-    if (i > 0) {
-      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
-    } else {
-      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
-    }
-    return result;
+    return categoryService.addCategory(category);
   }
 
   /**

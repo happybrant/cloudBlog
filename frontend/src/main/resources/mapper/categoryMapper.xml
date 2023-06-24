@@ -10,21 +10,37 @@
 
     <!--查找分类-->
     <select id="selectCategory" resultType="Category">
-        select
-        category.*, count
-        from ts_category category left join
-        (SELECT article.category_id,count(*) as `count` FROM ts_article article where article.`status` = 1 GROUP BY
-        article.category_id )as A
-        on category.id = A.category_id
-        left join ts_setting setting on category.create_user = setting.create_user
-        where category.`status` = 1
-        and setting.status = 1
-        and setting.routing = #{router}
+        SELECT
+            category.*,
+            count
+        FROM
+            ts_category category
+            LEFT JOIN (
+            SELECT
+                article.category_id,
+                article.create_user,
+                count(*) AS `count`
+            FROM
+                ts_article article
+            WHERE
+                article.`status` = 1
+            GROUP BY
+                article.category_id,
+                article.create_user
+            ) AS A ON category.id = A.category_id
+            AND category.create_user = A.create_user
+            LEFT JOIN ts_setting setting ON category.create_user = setting.create_user
+        WHERE
+            category.`status` = 1
+            AND count > 0
+            AND setting.STATUS = 1
+            AND setting.routing = #{router}
     </select>
     <!--查找分类总数-->
     <select id="selectCategoryCount" resultType="java.lang.Integer">
         select count(*) from ts_category category
         left join ts_setting setting on category.create_user = setting.create_user
+        inner join ts_article article on article.category_id = category.id
         where category.`status` = 1
         and setting.`status` = 1
         and setting.routing = #{router}

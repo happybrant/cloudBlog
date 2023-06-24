@@ -2,27 +2,34 @@ package com.kongfu.backend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kongfu.backend.common.ResponseResult;
+import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.ArticleMapper;
 import com.kongfu.backend.model.dto.ArticleQuery;
 import com.kongfu.backend.model.dto.QueryBase;
 import com.kongfu.backend.model.entity.Article;
+import com.kongfu.backend.model.entity.TagArticle;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** @author 付聪 */
 @Service
+@Slf4j
 public class ArticleService {
 
   @Resource public ArticleMapper articleMapper;
   @Resource public HostHolder holder;
+  @Resource public TagService tagService;
 
   /**
    * 博客列表，支持分页和条件查询
@@ -87,8 +94,33 @@ public class ArticleService {
    * @param article
    * @return
    */
-  public int addArticle(Article article) {
-    return articleMapper.insert(article);
+  public ResponseResult<String> addArticle(Article article) {
+    ResponseResult<String> result;
+
+    int i = articleMapper.insert(article);
+    if (i > 0) {
+      // 关于我的文章不需进行下面操作
+      if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
+          && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
+        // 插入文章
+        int[] tagIds = article.getTagIds();
+
+        List<TagArticle> tagArticles = new ArrayList<>();
+        if (tagIds != null && tagIds.length > 0) {
+          // 存在标签
+          for (int tagId : tagIds) {
+            TagArticle tagArticle = new TagArticle(tagId, article.getId());
+            tagArticles.add(tagArticle);
+          }
+          // 插入文章标签关联表
+          tagService.insertTagArticle(tagArticles);
+        }
+      }
+      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
+    } else {
+      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
+    }
+    return result;
   }
 
   /**
@@ -97,8 +129,34 @@ public class ArticleService {
    * @param article
    * @return
    */
-  public int updateArticle(Article article) {
-    return articleMapper.updateById(article);
+  public ResponseResult<String> updateArticle(Article article) {
+    ResponseResult<String> result;
+    // 修改文章
+    int i = articleMapper.updateById(article);
+    if (i > 0) {
+      // 关于我的文章不需进行下面操作
+      if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
+          && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
+        // 删除原有的标签
+        tagService.deleteTagArticleByArticleId(article.getId());
+        // 获取新的标签
+        int[] tagIds = article.getTagIds();
+        List<TagArticle> tagArticles = new ArrayList<>();
+        if (tagIds != null && tagIds.length > 0) {
+          // 存在标签
+          for (int tagId : tagIds) {
+            TagArticle tagArticle = new TagArticle(tagId, article.getId());
+            tagArticles.add(tagArticle);
+          }
+          // 插入文章标签关联表
+          tagService.insertTagArticle(tagArticles);
+        }
+      }
+      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
+    } else {
+      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
+    }
+    return result;
   }
 
   /**
@@ -107,7 +165,8 @@ public class ArticleService {
    * @param ids
    * @return
    */
-  public int deleteArticle(List<Integer> ids) {
+  public ResponseResult<String> deleteArticle(List<Integer> ids) {
+    ResponseResult<String> result;
     int count = 0;
     for (int id : ids) {
       Article article = articleMapper.selectById(id);
@@ -115,9 +174,16 @@ public class ArticleService {
         // 将状态修改为0
         article.setStatus(BlogConstant.DELETE_STATUS);
         count += articleMapper.updateById(article);
+        // 删除博客标签关联关系
+        tagService.deleteTagArticleByArticleId(id);
       }
     }
-    return count;
+    if (count > 0) {
+      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功删除" + count + "条数据");
+    } else {
+      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
+    }
+    return result;
   }
 
   /**

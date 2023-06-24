@@ -3,9 +3,11 @@ package com.kongfu.backend.model.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** @Author fuCong @Date 2023/2/8 17:18 */
 @Data
+@NoArgsConstructor
 @TableName(value = "ts_setting")
 public class Setting extends Entity {
 
@@ -40,13 +42,11 @@ public class Setting extends Entity {
   @TableField("tag")
   private int tag;
 
-  public Setting(
-      int id, String name, String title, String location, String avatarUrl, String routing) {
+  public Setting(int id, String name, String title, String location, String avatarUrl) {
     super.setId(id);
     this.name = name;
     this.title = title;
     this.location = location;
     this.avatarUrl = avatarUrl;
-    this.routing = routing;
   }
 }

@@ -6,7 +6,7 @@
 
     <sql id="selectFields">
         ts_article.id, title, content, origin_content, category_id, cover_url,ts_article.description, ts_article.status,
-        ts_article.create_time,
+        ts_article.create_time,ts_article.create_user,
         ts_category.path AS category_name, ts_tag.id AS tag_id,ts_tag.name AS tag_name,
         ts_user.displayName AS create_username
     </sql>
@@ -22,6 +22,7 @@
         <result column="category_name" property="categoryName"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
+        <result column="create_user" property="createUser"/>
         <result column="create_username" property="createUsername"/>
         <collection property="tags" ofType="Tag">
             <id column="tag_id" property="id"/>

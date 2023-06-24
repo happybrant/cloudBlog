@@ -40,7 +40,8 @@ public class ArticleReceiver {
     content = content.replaceAll("</?[^>]+>", "");
     // 去除字符串中的空格,回车,换行符,制表符
     content = content.replaceAll("\\s*|\t|\r|\n", "");
-    ArticleDto articleDto = new ArticleDto(article.getId(), article.getTitle(), content);
+    ArticleDto articleDto =
+        new ArticleDto(article.getId(), article.getTitle(), content, article.getCreateUser());
     if (!elasticSearchService.existIndex(BlogConstant.ARTICLE_INDEX)) {
       elasticSearchService.createIndex(
           BlogConstant.ARTICLE_INDEX, BlogConstant.ARTICLE_MAPPING_SOURCE);

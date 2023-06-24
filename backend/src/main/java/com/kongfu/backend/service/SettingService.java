@@ -1,27 +1,34 @@
 package com.kongfu.backend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.dao.SettingMapper;
 import com.kongfu.backend.model.dto.SettingDto;
 import com.kongfu.backend.model.entity.Setting;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /** @author 付聪 */
 @Service
+@Slf4j
 public class SettingService {
 
   @Resource public SettingMapper settingMapper;
   @Resource public HostHolder holder;
+  @Resource private RestTemplate restTemplate;
 
+  @Value("${restTemplate.url}")
+  private String restTemplateUrl;
   /**
    * 查找设置列表
    *
@@ -88,7 +95,7 @@ public class SettingService {
    * @param routing
    * @return
    */
-  public Setting selectSettingByRouting(String routing) {
+  public Setting getSettingByRouting(String routing) {
     QueryWrapper<Setting> queryWrapper = new QueryWrapper<>();
     queryWrapper.eq("status", BlogConstant.PUBLISH_STATUS);
     queryWrapper.eq("routing", routing);
@@ -105,14 +112,12 @@ public class SettingService {
    * @return
    */
   public int addSetting(SettingDto settingDto) {
-    Setting setting =
-        new Setting(
-            settingDto.getId(),
-            settingDto.getName(),
-            settingDto.getTitle(),
-            settingDto.getLocation(),
-            settingDto.getAvatarUrl(),
-            settingDto.getRouting());
+    Setting setting = new Setting();
+    setting.setName(settingDto.getName());
+    setting.setTitle(settingDto.getTitle());
+    setting.setLocation(settingDto.getLocation());
+    setting.setAvatarUrl(settingDto.getAvatarUrl());
+    setting.setRouting(settingDto.getRouting());
     List<String> controls = settingDto.getControls();
     for (String control : controls) {
       if ("分类".equals(control)) {
@@ -132,7 +137,9 @@ public class SettingService {
       }
     }
     setting.setStatus(BlogConstant.PUBLISH_STATUS);
-    return settingMapper.insert(setting);
+    refreshStatisticCache(settingDto.getRouting());
+    settingMapper.insert(setting);
+    return setting.getId();
   }
   /**
    * 根据id更新分类
@@ -141,37 +148,59 @@ public class SettingService {
    * @return
    */
   public int updateSetting(SettingDto settingDto) {
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    Setting setting =
-        new Setting(
-            settingDto.getId(),
-            settingDto.getName(),
-            settingDto.getTitle(),
-            settingDto.getLocation(),
-            settingDto.getAvatarUrl(),
-            settingDto.getRouting());
-    List<String> controls = settingDto.getControls();
-    for (String control : controls) {
-      if ("分类".equals(control)) {
-        setting.setCategory(1);
-      }
-      if ("标签".equals(control)) {
-        setting.setTag(1);
-      }
-      if ("归档".equals(control)) {
-        setting.setArchive(1);
-      }
-      if ("最近文章".equals(control)) {
-        setting.setRecentPost(1);
-      }
-      if ("链接".equals(control)) {
-        setting.setLink(1);
-      }
+    int i = 0;
+    Setting setting = new Setting();
+    if (settingDto.getId() == null || settingDto.getId() == 0) {
+      return i;
     }
-    return settingMapper.updateById(setting);
+    // 获取原路由
+    Setting originSetting = settingMapper.selectById(settingDto.getId());
+    if (originSetting == null) {
+      return i;
+    }
+    // 如果router不为空，表示单独修改路由，忽略其余信息
+    if (StringUtils.isNotBlank(settingDto.getRouting())) {
+      String oldRouter = originSetting.getRouting();
+      String newRouter = settingDto.getRouting();
+      setting.setId(settingDto.getId());
+      setting.setRouting(settingDto.getRouting());
+      i = settingMapper.updateById(setting);
+      // 重新设置缓存
+      resetCache(newRouter, oldRouter);
+    } else {
+      setting =
+          new Setting(
+              settingDto.getId(),
+              settingDto.getName(),
+              settingDto.getTitle(),
+              settingDto.getLocation(),
+              settingDto.getAvatarUrl());
+      List<String> controls = settingDto.getControls();
+      for (String control : controls) {
+        if ("分类".equals(control)) {
+          setting.setCategory(1);
+        }
+        if ("标签".equals(control)) {
+          setting.setTag(1);
+        }
+        if ("归档".equals(control)) {
+          setting.setArchive(1);
+        }
+        if ("最近文章".equals(control)) {
+          setting.setRecentPost(1);
+        }
+        if ("链接".equals(control)) {
+          setting.setLink(1);
+        }
+      }
+      i = settingMapper.updateById(setting);
+      refreshStatisticCache(originSetting.getRouting());
+    }
+    return i;
   }
+
   /**
-   * 根据id删除标签,逻辑删除
+   * 根据id删除设置，逻辑删除
    *
    * @param id
    * @return
@@ -184,5 +213,55 @@ public class SettingService {
       return settingMapper.updateById(setting);
     }
     return 0;
+  }
+
+  /** 刷新博客前端设置数据缓存 */
+  public void refreshStatisticCache(String routing) {
+    String url = restTemplateUrl + "/home/refreshSettingCache?router=" + routing;
+    // 发起请求,直接返回对象
+    ResponseResult responseResult = restTemplate.getForObject(url, ResponseResult.class);
+    if (responseResult != null) {
+      log.info(responseResult.getMessage());
+    } else {
+      log.info("缓存更新失败");
+    }
+  }
+
+  /**
+   * 重设所有缓存
+   *
+   * @param newRouter
+   * @param oldRouter
+   */
+  public void resetCache(String newRouter, String oldRouter) {
+    String url =
+        restTemplateUrl
+            + "/home/refreshSettingCache?newRouter="
+            + newRouter
+            + "&oldRouter="
+            + oldRouter;
+    // 发起请求,直接返回对象
+    ResponseResult responseResult = restTemplate.getForObject(url, ResponseResult.class);
+    if (responseResult != null) {
+      log.info(responseResult.getMessage());
+    } else {
+      log.info("缓存更新失败");
+    }
+  }
+  /**
+   * 根据用户id获取路由
+   *
+   * @param userId
+   * @return
+   */
+  public String getRoutingByUserId(int userId) {
+    QueryWrapper<Setting> queryWrapper = new QueryWrapper<>();
+    queryWrapper.eq("status", BlogConstant.PUBLISH_STATUS);
+    queryWrapper.eq("create_user", userId);
+    Setting setting = settingMapper.selectOne(queryWrapper);
+    if (setting != null) {
+      return setting.getRouting();
+    }
+    return "";
   }
 }

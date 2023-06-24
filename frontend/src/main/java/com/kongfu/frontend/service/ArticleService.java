@@ -5,12 +5,14 @@ import com.kongfu.frontend.dao.ArticleMapper;
 import com.kongfu.frontend.entity.Article;
 import com.kongfu.frontend.entity.ArticleDto;
 import com.kongfu.frontend.entity.ArticleQuery;
+import com.kongfu.frontend.entity.Setting;
 import com.kongfu.frontend.util.BlogConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -31,6 +33,7 @@ public class ArticleService {
 
   @Resource public ArticleMapper articleMapper;
   @Resource private RestHighLevelClient client;
+  @Resource private SettingService settingService;
 
   /**
    * 根据条件分页查找博客
@@ -89,16 +92,21 @@ public class ArticleService {
    *
    * @return
    */
-  public List<Map<String, Object>> findArticleGroupByMonth() {
-    return articleMapper.selectArticleGroupByMonth();
+  public List<Map<String, Object>> findArticleGroupByMonth(String router) {
+    return articleMapper.selectArticleGroupByMonth(router);
   }
 
-  public List<ArticleDto> searchArticleListPager(String keyword) throws IOException {
-
+  public List<ArticleDto> searchArticleListPager(String keyword, String router) throws IOException {
+    // 根据router查找用户id
+    Setting setting = settingService.getSettingByRouter(router);
     // 搜索请求对象
     SearchRequest searchRequest = new SearchRequest(BlogConstant.ARTICLE_INDEX);
     // 搜索源构建对象
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    // 多条件查询
+    BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    boolQuery.must(QueryBuilders.termQuery("createUser", setting.getCreateUser()));
+
     // 搜索条件不为空，按照条件进行搜索
     if (!StringUtils.isEmpty(keyword)) {
       // 构建高亮查询
@@ -110,10 +118,11 @@ public class ArticleService {
       highlightBuilder.preTags("<em>").postTags("</em>");
       searchSourceBuilder.highlighter(highlightBuilder);
       // 构建查询对象
-      searchSourceBuilder.query(QueryBuilders.queryStringQuery(keyword));
+      boolQuery.must(QueryBuilders.queryStringQuery(keyword));
+      searchSourceBuilder.query(boolQuery);
     } else {
       // 如果搜索条件为空，则查询全部数据的前10条
-      searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+      searchSourceBuilder.query(boolQuery);
       // 设置分页信息
       searchSourceBuilder.from(0);
       searchSourceBuilder.size(5);

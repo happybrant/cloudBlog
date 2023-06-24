@@ -5,6 +5,7 @@ import com.kongfu.frontend.entity.Category;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,20 +29,35 @@ public class CategoryService {
             .filter(category -> category.getParentId() == 0)
             .sorted(Comparator.comparing(Category::getOrder))
             .collect(Collectors.toList());
-    for (Category category : rootCategories) {
-      int id = category.getId();
+    // 获取所有非根节点的分类
+    List<Category> childrenCategories =
+        categories.stream()
+            .filter(category -> category.getParentId() != 0)
+            .sorted(Comparator.comparing(Category::getOrder))
+            .collect(Collectors.toList());
+    // 将所有的非根节点挂在根节点下面
+    for (Category category : childrenCategories) {
+      int parentId = category.getParentId();
       int count = category.getCount();
-      // 查找父分类下的子分类
-      List<Category> categories1 =
-          categories.stream()
-              .filter(s -> s.getParentId() == id)
-              .sorted(Comparator.comparing(Category::getOrder))
-              .collect(Collectors.toList());
-      for (Category category1 : categories1) {
-        count += category1.getCount();
+      String parentName = category.getPath().split("/")[1];
+      Category root =
+          rootCategories.stream().filter(s -> s.getId() == parentId).findAny().orElse(null);
+      if (root == null) {
+        // 如果根节点下原本没有数据导致没有查出来，手动创建根节点，并把当前分类加到该根节点的子分类中去
+        List<Category> children = new ArrayList<>();
+        children.add(category);
+        rootCategories.add(
+            new Category(parentId, parentName, 0, "/" + parentName, count, children));
+      } else {
+        // 否则直接加到根节点的子分类中去
+        List<Category> children = root.getChildren();
+        if (children == null) {
+          children = new ArrayList<>();
+        }
+        children.add(category);
+        root.setChildren(children);
+        root.setCount(root.getCount() + count);
       }
-      category.setCount(count);
-      category.setChildren(categories1);
     }
     return rootCategories;
   }
@@ -51,7 +67,15 @@ public class CategoryService {
    *
    * @return
    */
-  public int findCategoryCount(String router) {
-    return categoryMapper.selectCategoryCount(router);
+  public int findCategoryCount(List<Category> categories) {
+    int count = 0;
+    for (Category category : categories) {
+      count++;
+      List<Category> children = category.getChildren();
+      if (children != null && children.size() > 0) {
+        count += children.size();
+      }
+    }
+    return count;
   }
 }

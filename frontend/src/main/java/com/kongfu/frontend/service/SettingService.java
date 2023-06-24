@@ -20,7 +20,7 @@ public class SettingService {
    * @param
    * @return
    */
-  public Setting getSettingByCurrentUser(String router) {
+  public Setting getSettingByRouter(String router) {
     Setting setting = null;
 
     QueryWrapper<Setting> queryWrapper = new QueryWrapper<>();

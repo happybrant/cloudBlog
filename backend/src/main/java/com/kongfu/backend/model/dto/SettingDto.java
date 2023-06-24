@@ -2,15 +2,17 @@ package com.kongfu.backend.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 /** 接收前端设置属性 @Author fuCong @Date 2023/2/8 17:18 */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class SettingDto {
 
-  private int id;
+  private Integer id;
   private String name;
   private String title;
   private String location;

@@ -24,5 +24,12 @@ public interface TagMapper extends BaseMapper<Tag> {
    *
    * @param articleId
    */
-  void deleteTagArticle(int articleId);
+  void deleteTagArticleByArticleId(int articleId);
+
+  /**
+   * 根据标签id删除关联关系
+   *
+   * @param tagId
+   */
+  void deleteTagArticleByTagId(int tagId);
 }

@@ -18,4 +18,6 @@ public class ArticleDto {
   private String title;
   /** 内容 ，纯文本，剔除了HTML标签 */
   private String content;
+  /** 博客作者id */
+  private int createUser;
 }

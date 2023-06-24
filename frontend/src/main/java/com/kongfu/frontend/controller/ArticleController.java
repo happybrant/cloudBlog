@@ -74,8 +74,9 @@ public class ArticleController {
    * @throws IOException
    */
   @GetMapping("/searchArticles")
-  public List<ArticleDto> searchArticles(@RequestParam("keyword") String keyword)
+  public List<ArticleDto> searchArticles(
+      @RequestParam("keyword") String keyword, @RequestParam("router") String router)
       throws IOException {
-    return articleService.searchArticleListPager(keyword);
+    return articleService.searchArticleListPager(keyword, router);
   }
 }

@@ -85,6 +85,7 @@
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
         <result column="last_update_time" property="lastUpdateTime"/>
+        <result column="create_user" property="createUser"/>
         <collection property="tagNames" ofType="java.lang.String">
             <result column="tag_name" property="name"/>
         </collection>
@@ -115,7 +116,14 @@
             A.create_time AS createTime,
             count( 1 ) AS count
         FROM
-            ( SELECT DATE_FORMAT( create_time, '%Y-%m' ) AS create_time FROM `ts_article` WHERE `status` = 1) AS A
+            ( SELECT
+                DATE_FORMAT( article.create_time, '%Y-%m' ) AS create_time
+             FROM
+                `ts_article` AS article
+                LEFT JOIN ts_setting setting ON article.create_user = setting.create_user
+             WHERE
+                article.`status` = 1
+                AND setting.routing = #{router}) AS A
         GROUP BY
             A.create_time
         ORDER BY createTime DESC

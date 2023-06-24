@@ -1,6 +1,8 @@
 package com.kongfu.backend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.kongfu.backend.common.ResponseResult;
+import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.CategoryMapper;
 import com.kongfu.backend.model.dto.CategoryQuery;
 import com.kongfu.backend.model.entity.Category;
@@ -58,9 +60,26 @@ public class CategoryService {
    * @param category
    * @return
    */
-  public int addCategory(Category category) {
+  public ResponseResult<String> addCategory(Category category) {
+    ResponseResult<String> result;
     category.setStatus(BlogConstant.PUBLISH_STATUS);
-    return categoryMapper.insert(category);
+
+    // 查找当前层级是否有重名分类
+    QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+    queryWrapper.eq("name", category.getName());
+    queryWrapper.eq("parent_id", category.getParentId());
+    queryWrapper.eq("status", BlogConstant.PUBLISH_STATUS);
+    List<Category> categoryList = categoryMapper.selectList(queryWrapper);
+    if (categoryList != null && categoryList.size() > 0) {
+      return new ResponseResult<>(ResponseResultCode.Error, "当前层级存在同名分类");
+    }
+    int i = categoryMapper.insert(category);
+    if (i > 0) {
+      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
+    } else {
+      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
+    }
+    return result;
   }
 
   /**

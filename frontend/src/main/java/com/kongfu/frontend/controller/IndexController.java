@@ -1,5 +1,7 @@
 package com.kongfu.frontend.controller;
 
+import com.kongfu.frontend.common.ResponseResult;
+import com.kongfu.frontend.common.ResponseResultCode;
 import com.kongfu.frontend.entity.HostHolder;
 import com.kongfu.frontend.entity.IndexData;
 import com.kongfu.frontend.service.IndexService;
@@ -36,14 +38,40 @@ public class IndexController {
     return settingService.getDefaultRouting();
   }
 
-  /** 提供查询最新的接口给后台管理服务 */
+  /**
+   * 刷新统计数据缓存
+   *
+   * @param router
+   * @return
+   */
   @GetMapping("/refreshStatisticCache")
-  public String refreshStatisticCache(@RequestParam String router) {
+  public ResponseResult refreshStatisticCache(@RequestParam String router) {
     indexService.calculateStatistic(router);
-    return "success";
+    return new ResponseResult(ResponseResultCode.Success, "统计数据缓存刷新成功");
   }
 
-  public void refreshSettingCache(String router) {
+  /**
+   * 刷新设置数据缓存
+   *
+   * @param router
+   * @return
+   */
+  @GetMapping("/refreshSettingCache")
+  public ResponseResult refreshSettingCache(String router) {
     indexService.calculateSetting(router);
+    return new ResponseResult(ResponseResultCode.Success, "设置数据缓存刷新成功");
+  }
+
+  /**
+   * 重设缓存
+   *
+   * @param newRouter
+   * @param oldRouter
+   * @return
+   */
+  @GetMapping("/resetCache")
+  public ResponseResult resetCache(@RequestParam String newRouter, @RequestParam String oldRouter) {
+    indexService.resetCache(newRouter, oldRouter);
+    return new ResponseResult(ResponseResultCode.Success, "缓存重设成功");
   }
 }

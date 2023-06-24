@@ -90,7 +90,7 @@ public class IndexService {
   public IndexData calculateStatistic(String router) {
     IndexData indexData = new IndexData();
     // 按月份归档
-    List<Map<String, Object>> articles = articleService.findArticleGroupByMonth();
+    List<Map<String, Object>> articles = articleService.findArticleGroupByMonth(router);
     // 分类归档
     List<Category> categories = categoryService.findCategories(router);
     // 标签归档
@@ -104,7 +104,7 @@ public class IndexService {
     // 不把内容放入缓存
     recentPosts.forEach(item -> item.setContent(""));
     int articleCount = articleService.findArticleCount(new ArticleQuery(router));
-    long categoryCount = categoryService.findCategoryCount(router);
+    long categoryCount = categoryService.findCategoryCount(categories);
     long tagCount = tagService.findTagCount(router);
 
     Map<String, Long> articleMap = new LinkedHashMap<>(16);
@@ -116,7 +116,7 @@ public class IndexService {
     for (Map<String, Object> map : tags) {
       tagMap.put(map.get("name").toString(), (Long) map.get("count"));
     }
-    Setting setting = settingService.getSettingByCurrentUser(router);
+    Setting setting = settingService.getSettingByRouter(router);
     indexData.setSetting(setting);
     indexData.setArticleMap(articleMap);
     indexData.setArticleCount(articleCount);
@@ -137,7 +137,7 @@ public class IndexService {
    * @return
    */
   public Setting calculateSetting(String router) {
-    Setting setting = settingService.getSettingByCurrentUser(router);
+    Setting setting = settingService.getSettingByRouter(router);
     redisTemplate.opsForValue().set(router + "_" + StatisticIndexEnum.SETTING.redisKey, setting);
     return setting;
   }
@@ -156,6 +156,12 @@ public class IndexService {
     return false;
   }
 
+  /**
+   * 将首页统计数据设置到缓存中
+   *
+   * @param indexData
+   * @param router
+   */
   public void setStatisticCache(IndexData indexData, String router) {
     // 设置缓存
     redisTemplate
@@ -188,5 +194,17 @@ public class IndexService {
     redisTemplate
         .opsForValue()
         .set(router + "_" + StatisticIndexEnum.ARTICLECOUNT.redisKey, indexData.getArticleCount());
+  }
+
+  /**
+   * 将所有的缓存的key重新设置路由
+   *
+   * @param newRouter
+   * @param oldRouter
+   */
+  public void resetCache(String newRouter, String oldRouter) {
+    for (String key : StatisticIndexEnum.getRedisKeys()) {
+      redisTemplate.rename(oldRouter + "_" + key, newRouter + "_" + key);
+    }
   }
 }

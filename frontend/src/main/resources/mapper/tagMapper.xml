@@ -19,11 +19,16 @@
 
     <!--查找标签总数-->
     <select id="selectTagCount" resultType="java.lang.Integer">
-        select count(*) from ts_tag tag
-        left join ts_setting setting on tag.create_user = setting.create_user
-        where tag.`status` = 1
-        and setting.`status` = 1
-        and setting.routing = #{router}
+        SELECT
+            COUNT( DISTINCT tag.id )
+        FROM
+            ts_tag tag
+            LEFT JOIN ts_setting setting ON tag.create_user = setting.create_user
+            INNER JOIN tr_article_tag ON tag.id = tr_article_tag.tag_id
+        WHERE
+            tag.`status` = 1
+            AND setting.`status` = 1
+            AND setting.routing = #{router}
     </select>
 
 </mapper>

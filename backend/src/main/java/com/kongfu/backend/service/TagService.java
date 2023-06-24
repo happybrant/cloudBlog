@@ -64,6 +64,8 @@ public class TagService {
     if (tag != null) {
       // 将状态修改为0
       tag.setStatus(BlogConstant.DELETE_STATUS);
+      // 删除博客标签关联关系
+      tagMapper.deleteTagArticleByTagId(id);
       return tagMapper.updateById(tag);
     }
     return 0;
@@ -79,11 +81,11 @@ public class TagService {
   }
 
   /**
-   * 删除标签文章关联信息
+   * 根据博客id删除标签文章关联信息
    *
    * @param articleId
    */
-  public void deleteTagArticle(int articleId) {
-    tagMapper.deleteTagArticle(articleId);
+  public void deleteTagArticleByArticleId(int articleId) {
+    tagMapper.deleteTagArticleByArticleId(articleId);
   }
 }

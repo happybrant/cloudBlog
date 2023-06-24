@@ -48,18 +48,18 @@ public class SettingController {
    */
   @PostMapping("/add")
   @Log(menu = "个人中心/博客设置", description = "新增用户设置")
-  public ResponseResult<String> addSetting(@RequestBody SettingDto setting) {
-    ResponseResult<String> result;
+  public ResponseResult<Integer> addSetting(@RequestBody SettingDto setting) {
+    ResponseResult<Integer> result;
     if (setting == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
-    Setting existSetting = settingService.selectSettingByRouting(setting.getRouting());
+    Setting existSetting = settingService.getSettingByRouting(setting.getRouting());
     if (existSetting != null) {
       return new ResponseResult<>(ResponseResultCode.Error, "该路由设置已存在,请更换路由");
     }
     int i = settingService.addSetting(setting);
     if (i > 0) {
-      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
+      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", i);
     } else {
       result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
     }
@@ -86,6 +86,7 @@ public class SettingController {
     }
     return result;
   }
+
   /**
    * 根据id删除设置
    *

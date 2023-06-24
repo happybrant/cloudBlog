@@ -30,7 +30,12 @@
         </foreach>
     </insert>
     <!--删除标签博客关联关系-->
-    <delete id="deleteTagArticle" parameterType="int">
+    <delete id="deleteTagArticleByArticleId" parameterType="int">
         DELETE FROM tr_article_tag WHERE article_id = #{articleId}
+    </delete>
+
+    <!--删除标签博客关联关系-->
+    <delete id="deleteTagArticleByTagId" parameterType="int">
+        DELETE FROM tr_article_tag WHERE tag_id = #{tagId}
     </delete>
 </mapper>

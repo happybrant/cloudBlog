@@ -6,17 +6,19 @@ import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.model.dto.ArticleQuery;
 import com.kongfu.backend.model.entity.Article;
-import com.kongfu.backend.model.entity.TagArticle;
+import com.kongfu.backend.model.vo.HostHolder;
+import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.service.ArticleService;
-import com.kongfu.backend.service.TagService;
+import com.kongfu.backend.service.SettingService;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.MapUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +26,18 @@ import java.util.Map;
 /** @author 付聪 */
 @RequestMapping("/article")
 @RestController
+@Slf4j
 public class ArticleController implements BlogConstant {
   @Resource public ArticleService articleService;
-  @Resource public TagService tagService;
-  @Resource public RabbitTemplate rabbitTemplate;
-  @Resource private RestTemplate restTemplate;
 
+  @Value("${restTemplate.url}")
+  private String restTemplateUrl;
+
+  @Resource public RabbitTemplate rabbitTemplate;
+
+  @Resource private RestTemplate restTemplate;
+  @Resource private SettingService settingService;
+  @Resource public HostHolder holder;
   /**
    * 博客列表
    *
@@ -105,52 +113,15 @@ public class ArticleController implements BlogConstant {
   @PostMapping("/add")
   @Log(menu = "博客管理", description = "发布/暂存文章")
   public ResponseResult<String> addArticle(@RequestBody Article article) {
-    ResponseResult<String> result;
     if (article == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
-    int i = articleService.addArticle(article);
-    if (i > 0) {
-      // 关于我的文章不需进行下面操作
-      if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
-          && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
-        // 插入文章
-        int[] tagIds = article.getTagIds();
-
-        List<TagArticle> tagArticles = new ArrayList<>();
-        if (tagIds != null && tagIds.length > 0) {
-          // 存在标签
-          for (int tagId : tagIds) {
-            TagArticle tagArticle = new TagArticle(tagId, article.getId());
-            tagArticles.add(tagArticle);
-          }
-          // 插入文章标签关联表
-          tagService.insertTagArticle(tagArticles);
-        }
-        // 通过消息队列将其存入 Elasticsearch 服务器
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("articleId", article.getId());
-        map.put("type", "insert");
-        rabbitTemplate.convertAndSend("article", map);
-        // 更新缓存
-        String url = "http://localhost:8080/testGet";
-        // 发起请求,直接返回对象
-        String responseBean = restTemplate.getForObject(url, String.class);
-        System.out.println(responseBean);
-      }
-      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
-    } else {
-      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
-    }
+    ResponseResult<String> result = articleService.addArticle(article);
+    // 通过消息队列将其存入 Elasticsearch 服务器
+    sendMsg("insert", article.getId());
+    // 刷新博客前端统计数据缓存
+    refreshStatisticCache();
     return result;
-  }
-
-  @RequestMapping("/test")
-  public void test() {
-    String url = "http://localhost:8084/home/refreshStatisticCache?router=" + "scurry";
-    // 发起请求,直接返回对象
-    String responseBean = restTemplate.getForObject(url, String.class);
-    System.out.println(responseBean);
   }
 
   /**
@@ -162,41 +133,14 @@ public class ArticleController implements BlogConstant {
   @PostMapping("/update")
   @Log(menu = "博客管理", description = "修改博客")
   public ResponseResult<String> updateArticle(@RequestBody Article article) {
-    ResponseResult<String> result;
-
     if (article == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
-    // 修改文章
-    int i = articleService.updateArticle(article);
-    if (i > 0) {
-      // 关于我的文章不需进行下面操作
-      if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
-          && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
-        // 删除原有的标签
-        tagService.deleteTagArticle(article.getId());
-        // 获取新的标签
-        int[] tagIds = article.getTagIds();
-        List<TagArticle> tagArticles = new ArrayList<>();
-        if (tagIds != null && tagIds.length > 0) {
-          // 存在标签
-          for (int tagId : tagIds) {
-            TagArticle tagArticle = new TagArticle(tagId, article.getId());
-            tagArticles.add(tagArticle);
-          }
-          // 插入文章标签关联表
-          tagService.insertTagArticle(tagArticles);
-        }
-        // 通过消息队列将其存入 Elasticsearch 服务器
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("articleId", article.getId());
-        map.put("type", "update");
-        rabbitTemplate.convertAndSend("article", map);
-      }
-      result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功添加" + i + "条数据");
-    } else {
-      result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
-    }
+    ResponseResult<String> result = articleService.updateArticle(article);
+    // 通过消息队列将其存入 Elasticsearch 服务器
+    sendMsg("update", article.getId());
+    // 刷新博客前端统计数据缓存
+    refreshStatisticCache();
     return result;
   }
 
@@ -209,24 +153,45 @@ public class ArticleController implements BlogConstant {
   @PostMapping("/delete")
   @Log(menu = "博客管理", description = "删除博客")
   public ResponseResult<String> deleteArticle(@RequestBody List<Integer> params) {
-    ResponseResult<String> result;
     if (params == null || params.size() == 0) {
-      result = new ResponseResult<>(ResponseResultCode.ParameterEmpty, "传入参数为空");
-    } else {
-      int i = articleService.deleteArticle(params);
-      if (i > 0) {
-        // 通过消息队列将其存入 Elasticsearch 服务器
-        for (int id : params) {
-          Map<String, Object> map = new HashMap<>(16);
-          map.put("articleId", id);
-          map.put("type", "delete");
-          rabbitTemplate.convertAndSend("article", map);
-        }
-        result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功删除" + i + "条数据");
-      } else {
-        result = new ResponseResult<>(ResponseResultCode.Error, "操作失败");
-      }
+      return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "传入参数为空");
     }
+    ResponseResult<String> result = articleService.deleteArticle(params);
+    for (int i = 0; i < params.size(); i++) {
+      sendMsg("delete", params.get(i));
+    }
+    // 刷新博客前端统计数据缓存
+    refreshStatisticCache();
     return result;
+  }
+
+  /**
+   * 将博客信息放入mq
+   *
+   * @param type
+   * @param articleId
+   */
+  public void sendMsg(String type, int articleId) {
+    // 通过消息队列将其存入 Elasticsearch 服务器
+    Map<String, Object> map = new HashMap<>(16);
+    map.put("articleId", articleId);
+    map.put("type", type);
+    rabbitTemplate.convertAndSend("article", map);
+  }
+
+  /** 刷新博客前端统计数据缓存 */
+  public void refreshStatisticCache() {
+    // 获取当前登录用户
+    LoginToken loginToken = holder.getUser();
+    // 根据当前用户获取router
+    String routing = settingService.getRoutingByUserId(loginToken.getId());
+    String url = restTemplateUrl + "/home/refreshStatisticCache?router=" + routing;
+    // 发起请求,直接返回对象
+    ResponseResult responseResult = restTemplate.getForObject(url, ResponseResult.class);
+    if (responseResult != null) {
+      log.info(responseResult.getMessage());
+    } else {
+      log.info("缓存更新失败");
+    }
   }
 }

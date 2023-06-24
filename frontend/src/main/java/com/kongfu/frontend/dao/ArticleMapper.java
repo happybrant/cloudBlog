@@ -45,9 +45,10 @@ public interface ArticleMapper {
   /**
    * 按月对博客进行归档
    *
+   * @param router
    * @return
    */
-  List<Map<String, Object>> selectArticleGroupByMonth();
+  List<Map<String, Object>> selectArticleGroupByMonth(String router);
 
   /**
    * 博客列表根据分类和创建时间分类后根据id查找当前博客的前一篇
