@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class ArticleQuery extends QueryBase {
+public class ArticleQuery extends BaseQuery {
   private Integer id;
 
   private String title;

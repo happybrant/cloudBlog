@@ -107,7 +107,7 @@
     </select>
 
     <!--根据博客的分类对博客进行分组-->
-    <select id="selectArticleByCategory" parameterType="com.kongfu.backend.model.dto.QueryBase"
+    <select id="selectArticleByCategory" parameterType="com.kongfu.backend.model.dto.BaseQuery"
             resultType="java.util.Map">
         SELECT
         SUBSTR( SUBSTRING_INDEX( category.path, '/', 2 ), 2 ) AS CategoryName,
@@ -125,7 +125,7 @@
     </select>
 
     <!--根据博客的标签对博客进行分组-->
-    <select id="selectArticleByTag" parameterType="com.kongfu.backend.model.dto.QueryBase" resultType="java.util.Map">
+    <select id="selectArticleByTag" parameterType="com.kongfu.backend.model.dto.BaseQuery" resultType="java.util.Map">
         SELECT
         ts_tag.`name` AS TagName,count(*) AS Count
         FROM

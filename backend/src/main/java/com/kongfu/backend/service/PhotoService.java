@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.dao.PhotoMapper;
 import com.kongfu.backend.model.entity.Photo;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import java.util.Map;
 @Service
 public class PhotoService {
   @Resource private PhotoMapper photoMapper;
-  @Resource private HostHolder holder;
 
   public int addPhoto(List<Photo> photos) {
     int count = 0;

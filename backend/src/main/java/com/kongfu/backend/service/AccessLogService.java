@@ -2,6 +2,7 @@ package com.kongfu.backend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kongfu.backend.dao.AccessLogMapper;
 import com.kongfu.backend.model.dto.AccessLogQuery;
 import com.kongfu.backend.model.entity.AccessLog;
@@ -17,7 +18,7 @@ import java.util.*;
 
 /** @Author fuCong @Date 2023/4/28 10:20 */
 @Service
-public class AccessLogService {
+public class AccessLogService extends ServiceImpl<AccessLogMapper, AccessLog> {
   @Resource private AccessLogMapper accessLogMapper;
 
   public int addAccessLog(AccessLog accessLog) {
@@ -90,9 +91,9 @@ public class AccessLogService {
     times[0] = dateFormat.format(new Date()) + " 23:59:59";
     // 获取30天前的日期
     calendar.add(Calendar.DATE, -30);
-    Date lastWeekday = calendar.getTime();
+    Date lastMonthDay = calendar.getTime();
     // 开始时间
-    times[1] = dateFormat.format(lastWeekday) + " 00:00:00";
+    times[1] = dateFormat.format(lastMonthDay) + " 00:00:00";
     return times;
   }
 

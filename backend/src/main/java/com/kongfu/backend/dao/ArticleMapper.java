@@ -2,7 +2,7 @@ package com.kongfu.backend.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kongfu.backend.model.dto.ArticleQuery;
-import com.kongfu.backend.model.dto.QueryBase;
+import com.kongfu.backend.model.dto.BaseQuery;
 import com.kongfu.backend.model.entity.Article;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -40,16 +40,16 @@ public interface ArticleMapper extends BaseMapper<Article> {
   /**
    * 根据分类对博客进行分组
    *
-   * @param queryBase
+   * @param baseQuery
    * @return
    */
-  List<Map<String, Object>> selectArticleByCategory(QueryBase queryBase);
+  List<Map<String, Object>> selectArticleByCategory(BaseQuery baseQuery);
 
   /**
    * 根据创标签对博客进行分组
    *
-   * @param queryBase
+   * @param baseQuery
    * @return
    */
-  List<Map<String, Object>> selectArticleByTag(QueryBase queryBase);
+  List<Map<String, Object>> selectArticleByTag(BaseQuery baseQuery);
 }

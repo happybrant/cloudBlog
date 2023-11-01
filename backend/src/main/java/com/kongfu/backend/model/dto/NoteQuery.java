@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class NoteQuery extends QueryBase {
+public class NoteQuery extends BaseQuery {
 
   private String title;
+  private int categoryId;
+  private String categoryCode;
 }

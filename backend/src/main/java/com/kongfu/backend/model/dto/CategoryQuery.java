@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class CategoryQuery extends QueryBase {
+public class CategoryQuery extends BaseQuery {
 
   private String name;
 }

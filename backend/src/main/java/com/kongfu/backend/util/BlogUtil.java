@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.util.DigestUtils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -140,6 +141,20 @@ public class BlogUtil {
       calendar.add(Calendar.DATE, -1);
     }
     return dateList;
+  }
+
+  /**
+   * 获取前n天的日期
+   *
+   * @param n
+   * @return
+   */
+  public static String getLateNDay(int n) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.DATE, -n);
+    Date lastNDate = calendar.getTime();
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    return dateFormat.format(lastNDate) + " 23:59:59";
   }
   /**
    * 获取当前日期是星期几

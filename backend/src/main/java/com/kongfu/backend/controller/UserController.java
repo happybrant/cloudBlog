@@ -7,9 +7,11 @@ import com.kongfu.backend.annotation.Log;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.model.dto.UserQuery;
+import com.kongfu.backend.model.entity.NoteCategory;
 import com.kongfu.backend.model.entity.User;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.model.vo.UserInfo;
+import com.kongfu.backend.service.NoteCategoryService;
 import com.kongfu.backend.service.UserService;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
@@ -28,6 +30,7 @@ import java.util.Map;
 public class UserController implements BlogConstant {
 
   @Autowired private UserService userService;
+  @Autowired private NoteCategoryService noteCategoryService;
 
   /**
    * 用户列表
@@ -115,6 +118,7 @@ public class UserController implements BlogConstant {
       LoginToken token = LoginToken.checkTicket(authorization.substring(7));
       if (token != null) {
         User user = userService.findUserById(token.getId());
+        List<NoteCategory> categoryList = noteCategoryService.getNoteCategoryList();
         UserInfo userInfo =
             new UserInfo(
                 user.getId(),
@@ -122,7 +126,8 @@ public class UserController implements BlogConstant {
                 user.getDisplayName(),
                 user.getEmail(),
                 user.getType(),
-                user.getHeaderUrl());
+                user.getHeaderUrl(),
+                categoryList);
 
         return new ResponseResult<>(ResponseResultCode.Success, "操作成功", userInfo);
       }
@@ -247,7 +252,7 @@ public class UserController implements BlogConstant {
     if (user == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "未找到对应用户");
     }
-    user.setPassword(BlogConstant.INITIAL_PASSWORD);
+    user.setPassword(BlogUtil.md5(BlogConstant.INITIAL_PASSWORD + user.getSalt()));
     int i = userService.updateUser(user);
     if (i > 0) {
       result = new ResponseResult<>(ResponseResultCode.Success, "操作成功", "成功更新" + i + "条数据");

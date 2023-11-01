@@ -9,30 +9,42 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public enum ResponseResultCode {
   /** 空 */
-  Empty(0),
+  Empty(0, "空值"),
   /** 成功 */
-  Success(200),
+  Success(200, "成功"),
   /** 错误 */
-  Error(-1),
+  Error(500, "系统内部错误"),
   /** 参数为空 */
-  ParameterEmpty(10000),
+  ParameterEmpty(10000, "参数为空"),
   /** 权限不够 */
-  AuthFailed(401),
+  AuthFailed(401, "权限不足"),
   /** 服务异常 */
-  Busy(503);
+  Busy(503, "服务不可用");
 
-  @ApiModelProperty("value")
-  private int value;
+  @ApiModelProperty("code")
+  private int code;
 
-  ResponseResultCode(int value) {
-    this.value = value;
+  @ApiModelProperty("message")
+  private String message;
+
+  ResponseResultCode(int code, String message) {
+    this.code = code;
+    this.message = message;
   }
 
-  public Integer getValue() {
-    return value;
+  public String getMessage() {
+    return message;
   }
 
-  public void setValue(int value) {
-    this.value = value;
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public int getCode() {
+    return code;
+  }
+
+  public void setCode(int code) {
+    this.code = code;
   }
 }

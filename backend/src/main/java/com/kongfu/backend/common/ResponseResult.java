@@ -12,26 +12,26 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ResponseResult<T> implements Serializable {
 
-  private Integer code = ResponseResultCode.Empty.getValue();
+  private Integer code = ResponseResultCode.Empty.getCode();
 
   private String message;
 
   private T data;
 
   public ResponseResult(ResponseResultCode code) {
-    this.code = code.getValue();
+    this.code = code.getCode();
     this.message = "";
     this.data = null;
   }
 
   public ResponseResult(ResponseResultCode code, String message) {
-    this.code = code.getValue();
+    this.code = code.getCode();
     this.message = message;
     this.data = null;
   }
 
   public ResponseResult(ResponseResultCode code, String message, T data) {
-    this.code = code.getValue();
+    this.code = code.getCode();
     this.message = message;
     this.data = data;
   }

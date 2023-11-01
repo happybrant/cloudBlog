@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.dao.NoteMapper;
 import com.kongfu.backend.model.dto.NoteQuery;
+import com.kongfu.backend.model.entity.Entity;
 import com.kongfu.backend.model.entity.Note;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +34,6 @@ import java.util.*;
 @Service
 public class NoteService {
   @Resource private NoteMapper noteMapper;
-  @Resource private HostHolder holder;
   @Resource private RestHighLevelClient client;
 
   public int addNote(Note note) {
@@ -45,13 +44,36 @@ public class NoteService {
   /**
    * 获取笔记列表
    *
+   * @param query
+   * @return
+   */
+  public List<Note> getNoteList(NoteQuery query) {
+    QueryWrapper<Note> queryWrapper = new QueryWrapper<>();
+    queryWrapper.lambda().eq(Entity::getStatus, BlogConstant.PUBLISH_STATUS);
+    if (StringUtils.isNotBlank(query.getTitle())) {
+      queryWrapper.lambda().like(Note::getTitle, query.getTitle());
+    }
+    if (query.getCategoryId() != 0) {
+      queryWrapper.lambda().eq(Note::getCategoryId, query.getCategoryId());
+    }
+    queryWrapper.lambda().orderByDesc(Entity::getCreateTime);
+    return noteMapper.selectList(queryWrapper);
+  }
+
+  /**
+   * 分页获取笔记列表
+   *
    * @return
    */
   public Page<Note> getNoteListPager(NoteQuery query) {
     QueryWrapper<Note> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("status", BlogConstant.PUBLISH_STATUS);
-    queryWrapper.like("title", query.getTitle());
-    queryWrapper.orderByDesc("create_time");
+    queryWrapper.lambda().eq(Entity::getStatus, BlogConstant.PUBLISH_STATUS);
+    queryWrapper.lambda().like(Note::getTitle, query.getTitle());
+    if (query.getCategoryId() != 0) {
+      queryWrapper.lambda().eq(Note::getCategoryId, query.getCategoryId());
+    }
+    queryWrapper.lambda().orderByDesc(Note::getTopFlag);
+    queryWrapper.lambda().orderByDesc(Entity::getLastUpdateTime);
     Page<Note> notePage = new Page<>(query.getPageIndex(), query.getPageSize());
     return noteMapper.selectPage(notePage, queryWrapper);
   }

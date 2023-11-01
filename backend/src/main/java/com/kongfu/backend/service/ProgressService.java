@@ -3,7 +3,6 @@ package com.kongfu.backend.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kongfu.backend.dao.ProgressMapper;
 import com.kongfu.backend.model.entity.Progress;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ import java.util.List;
 @Service
 public class ProgressService {
   @Resource private ProgressMapper progressMapper;
-  @Resource private HostHolder holder;
 
   /**
    * 新增任务进度

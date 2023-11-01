@@ -6,7 +6,6 @@ import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.CategoryMapper;
 import com.kongfu.backend.model.dto.CategoryQuery;
 import com.kongfu.backend.model.entity.Category;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
   @Resource public CategoryMapper categoryMapper;
-  @Resource public HostHolder holder;
 
   /**
    * 查找分类

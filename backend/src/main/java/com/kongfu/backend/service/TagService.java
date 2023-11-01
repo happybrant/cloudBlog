@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kongfu.backend.dao.TagMapper;
 import com.kongfu.backend.model.entity.Tag;
 import com.kongfu.backend.model.entity.TagArticle;
-import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.util.BlogConstant;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import java.util.List;
 public class TagService {
 
   @Resource public TagMapper tagMapper;
-  @Resource public HostHolder holder;
 
   /**
    * 查找标签

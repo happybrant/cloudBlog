@@ -6,7 +6,7 @@ import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.ArticleMapper;
 import com.kongfu.backend.model.dto.ArticleQuery;
-import com.kongfu.backend.model.dto.QueryBase;
+import com.kongfu.backend.model.dto.BaseQuery;
 import com.kongfu.backend.model.entity.Article;
 import com.kongfu.backend.model.entity.TagArticle;
 import com.kongfu.backend.model.vo.HostHolder;
@@ -233,7 +233,7 @@ public class ArticleService {
    * @return
    */
   public Map<String, Long> getArticleByCategory() {
-    List<Map<String, Object>> articleList = articleMapper.selectArticleByCategory(new QueryBase());
+    List<Map<String, Object>> articleList = articleMapper.selectArticleByCategory(new BaseQuery());
     Map<String, Long> articleMap = new LinkedHashMap<>(16);
     for (Map<String, Object> map : articleList) {
       articleMap.put(map.get("CategoryName").toString(), (Long) map.get("Count"));
@@ -247,7 +247,7 @@ public class ArticleService {
    * @return
    */
   public Map<String, Long> getArticleByTag() {
-    List<Map<String, Object>> articleList = articleMapper.selectArticleByTag(new QueryBase());
+    List<Map<String, Object>> articleList = articleMapper.selectArticleByTag(new BaseQuery());
     long total = articleList.stream().mapToLong(r -> (long) r.get("Count")).sum();
 
     Map<String, Long> articleMap = new LinkedHashMap<>(16);

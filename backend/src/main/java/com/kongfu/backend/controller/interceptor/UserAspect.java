@@ -1,7 +1,7 @@
 package com.kongfu.backend.controller.interceptor;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.kongfu.backend.model.dto.QueryBase;
+import com.kongfu.backend.model.dto.BaseQuery;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
@@ -36,9 +36,9 @@ public class UserAspect {
     if (user != null && user.getRole() > BlogConstant.AUTHORITY_ADMIN) {
       // 获取参数
       Object[] objects = joinPoint.getArgs();
-      if (objects.length > 0 && objects[0] instanceof QueryBase) {
-        QueryBase queryBase = (QueryBase) objects[0];
-        queryBase.setCreateUser(user.getId());
+      if (objects.length > 0 && objects[0] instanceof BaseQuery) {
+        BaseQuery baseQuery = (BaseQuery) objects[0];
+        baseQuery.setCreateUser(user.getId());
       }
     }
   }
@@ -48,8 +48,8 @@ public class UserAspect {
   public void beforeBaseMapper(JoinPoint joinPoint) {
     LoginToken user = holder.getUser();
 
-    // 表示当前角色不是管理员，加上当前登录用户作为条件
-    if (user != null && user.getRole() > BlogConstant.AUTHORITY_ADMIN) {
+    // 加上当前登录用户作为条件
+    if (user != null) {
       // 获取参数
       Object[] objects = joinPoint.getArgs();
       QueryWrapper<?> queryWrapper;

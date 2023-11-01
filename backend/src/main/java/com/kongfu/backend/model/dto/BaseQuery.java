@@ -4,7 +4,7 @@ import lombok.Data;
 
 /** @Author fuCong @Date 2023/5/19 16:49 基础查询条件 */
 @Data
-public class QueryBase {
+public class BaseQuery {
   private Integer pageSize;
 
   private Integer pageIndex;
@@ -14,4 +14,6 @@ public class QueryBase {
   private Integer createUser;
 
   private String createTime;
+
+  private String keyword;
 }

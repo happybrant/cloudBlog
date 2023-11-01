@@ -117,10 +117,13 @@ public class ArticleController implements BlogConstant {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
     ResponseResult<String> result = articleService.addArticle(article);
-    // 通过消息队列将其存入 Elasticsearch 服务器
-    sendMsg("insert", article.getId());
-    // 刷新博客前端统计数据缓存
-    refreshStatisticCache();
+    if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
+        && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
+      // 通过消息队列将其存入 Elasticsearch 服务器
+      sendMsg("insert", article.getId());
+      // 刷新博客前端统计数据缓存
+      refreshStatisticCache();
+    }
     return result;
   }
 
@@ -137,10 +140,13 @@ public class ArticleController implements BlogConstant {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");
     }
     ResponseResult<String> result = articleService.updateArticle(article);
-    // 通过消息队列将其存入 Elasticsearch 服务器
-    sendMsg("update", article.getId());
-    // 刷新博客前端统计数据缓存
-    refreshStatisticCache();
+    if (article.getStatus() != BlogConstant.ABOUT_ME_STATUS
+        && article.getStatus() != BlogConstant.ABOUT_ME_UN_PUBLISH_STATUS) {
+      // 通过消息队列将其存入 Elasticsearch 服务器
+      sendMsg("update", article.getId());
+      // 刷新博客前端统计数据缓存
+      refreshStatisticCache();
+    }
     return result;
   }
 

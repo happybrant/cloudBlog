@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
+import com.kongfu.backend.dao.NoteCategoryMapper;
 import com.kongfu.backend.dao.UserMapper;
 import com.kongfu.backend.model.dto.UserQuery;
+import com.kongfu.backend.model.entity.NoteCategory;
 import com.kongfu.backend.model.entity.User;
 import com.kongfu.backend.model.vo.LoginToken;
 import com.kongfu.backend.util.BlogConstant;
@@ -15,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -24,11 +27,15 @@ import java.util.concurrent.TimeUnit;
 
 /** @author 付聪 */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserService implements BlogConstant {
 
   @Resource private UserMapper userMapper;
 
   @Autowired private RedisTemplate<String, Serializable> redisTemplate;
+
+  @Resource private NoteCategoryMapper noteCategoryMapper;
+  @Resource private NoteCategoryService noteCategoryService;
 
   public ResponseResult<String> login(String username, String password) {
 
@@ -132,7 +139,20 @@ public class UserService implements BlogConstant {
     user.setStatus(BlogConstant.PUBLISH_STATUS);
     user.setSalt(BlogUtil.generateUUID().substring(0, 5));
     user.setPassword(BlogUtil.md5(BlogConstant.INITIAL_PASSWORD + user.getSalt()));
-    return userMapper.insert(user);
+    int result = userMapper.insert(user);
+    if (result > 0) {
+      NoteCategory noteCategory = new NoteCategory();
+      noteCategory.setName("默认分类");
+      noteCategory.setCode("default");
+      noteCategory.setDescription("笔记的默认分类，不允许删除");
+      noteCategory.setOrder(noteCategoryService.getMaxOrder());
+      noteCategory.setStatus(BlogConstant.PUBLISH_STATUS);
+      noteCategory.setCreateUser(user.getId());
+      noteCategory.setLastUpdateUser(user.getId());
+      // 给用户创建默认笔记分类
+      noteCategoryMapper.insert(noteCategory);
+    }
+    return result;
   }
 
   /**
