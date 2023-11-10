@@ -2,6 +2,7 @@ package com.kongfu.backend.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kongfu.backend.common.ResponseResult;
 import com.kongfu.backend.common.ResponseResultCode;
 import com.kongfu.backend.dao.ArticleMapper;
@@ -25,7 +26,7 @@ import java.util.Map;
 /** @author 付聪 */
 @Service
 @Slf4j
-public class ArticleService {
+public class ArticleService extends ServiceImpl<ArticleMapper, Article> {
 
   @Resource public ArticleMapper articleMapper;
   @Resource public HostHolder holder;
