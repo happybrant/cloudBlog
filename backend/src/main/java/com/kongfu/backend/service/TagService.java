@@ -35,7 +35,6 @@ public class TagService {
    * @return
    */
   public int addTag(Tag tag) {
-    tag.setStatus(BlogConstant.PUBLISH_STATUS);
     return tagMapper.insert(tag);
   }
 

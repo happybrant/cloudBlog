@@ -37,7 +37,6 @@ public class NoteService {
   @Resource private RestHighLevelClient client;
 
   public int addNote(Note note) {
-    note.setStatus(BlogConstant.PUBLISH_STATUS);
     return noteMapper.insert(note);
   }
 

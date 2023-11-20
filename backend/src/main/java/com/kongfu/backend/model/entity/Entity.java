@@ -33,6 +33,6 @@ public class Entity {
   @TableField(value = "last_update_time", fill = FieldFill.INSERT_UPDATE)
   private Date lastUpdateTime;
   /** 状态 */
-  @TableField("status")
+  @TableField(value = "status", fill = FieldFill.INSERT)
   private Integer status;
 }

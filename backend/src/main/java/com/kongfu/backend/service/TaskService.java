@@ -22,7 +22,6 @@ public class TaskService {
   @Resource private TaskMapper taskMapper;
 
   public int addTask(Task task) {
-    task.setStatus(BlogConstant.PUBLISH_STATUS);
     return taskMapper.insert(task);
   }
 

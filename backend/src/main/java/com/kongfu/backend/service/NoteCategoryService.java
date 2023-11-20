@@ -34,7 +34,6 @@ public class NoteCategoryService extends ServiceImpl<NoteCategoryMapper, NoteCat
   public int addNoteCategory(NoteCategory noteCategory) {
     // 判断code不能重复
     judgeCodeExist(noteCategory, true);
-    noteCategory.setStatus(BlogConstant.PUBLISH_STATUS);
     noteCategory.setOrder(getMaxOrder());
     return noteCategoryMapper.insert(noteCategory);
   }

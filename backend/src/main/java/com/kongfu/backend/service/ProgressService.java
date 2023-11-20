@@ -25,7 +25,6 @@ public class ProgressService {
    * @return
    */
   public int addProgress(Progress progress) {
-    progress.setStatus(BlogConstant.PUBLISH_STATUS);
     return progressMapper.insert(progress);
   }
 

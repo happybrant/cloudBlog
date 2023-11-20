@@ -37,7 +37,7 @@ public class LogAspect {
         (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     assert attributes != null;
     HttpServletRequest request = attributes.getRequest();
-    log.info("============ before ==========");
+    log.debug("============ before ==========");
     // 获取Log注解信息
     AccessLog accessLog = getWebLogInfo(joinPoint);
     // 设置请求地址URL
@@ -51,7 +51,7 @@ public class LogAspect {
 
   @Around("@annotation(com.kongfu.backend.annotation.Log)")
   public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-    log.info("============ doAround ==========");
+    log.debug("============ doAround ==========");
     long startTime = System.currentTimeMillis();
     Object result = proceedingJoinPoint.proceed();
     AccessLog accessLog = logThreadLocal.get();

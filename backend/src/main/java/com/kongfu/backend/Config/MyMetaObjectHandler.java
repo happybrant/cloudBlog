@@ -3,6 +3,7 @@ package com.kongfu.backend.Config;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.kongfu.backend.model.vo.HostHolder;
 import com.kongfu.backend.model.vo.LoginToken;
+import com.kongfu.backend.util.BlogConstant;
 import org.apache.ibatis.reflection.MetaObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     // 注意这里的fieldName是实体字段名称，而不是数据库字段名称！
     this.strictInsertFill(metaObject, "createTime", Date.class, new Date());
     this.strictInsertFill(metaObject, "lastUpdateTime", Date.class, new Date());
+    this.strictInsertFill(metaObject, "status", Integer.class, BlogConstant.PUBLISH_STATUS);
     // 存在用户登录信息才自动填值
     LoginToken user = holder.getUser();
     if (user != null) {

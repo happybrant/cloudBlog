@@ -19,7 +19,6 @@ public class PlanService {
   @Resource private PlanMapper planMapper;
 
   public int addPlan(Plan plan) {
-    plan.setStatus(BlogConstant.PUBLISH_STATUS);
     return planMapper.insert(plan);
   }
 

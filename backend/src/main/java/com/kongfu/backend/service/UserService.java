@@ -136,7 +136,6 @@ public class UserService implements BlogConstant {
    * @return
    */
   public int addUser(User user) {
-    user.setStatus(BlogConstant.PUBLISH_STATUS);
     user.setSalt(BlogUtil.generateUUID().substring(0, 5));
     user.setPassword(BlogUtil.md5(BlogConstant.INITIAL_PASSWORD + user.getSalt()));
     int result = userMapper.insert(user);

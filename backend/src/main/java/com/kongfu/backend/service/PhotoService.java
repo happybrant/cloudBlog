@@ -26,7 +26,6 @@ public class PhotoService {
     int count = 0;
     if (photos.size() > 0) {
       for (Photo photo : photos) {
-        photo.setStatus(BlogConstant.PUBLISH_STATUS);
         int num = photoMapper.insert(photo);
         count += num;
       }

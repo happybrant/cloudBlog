@@ -136,7 +136,6 @@ public class SettingService {
         setting.setLink(1);
       }
     }
-    setting.setStatus(BlogConstant.PUBLISH_STATUS);
     refreshStatisticCache(settingDto.getRouting());
     settingMapper.insert(setting);
     return setting.getId();

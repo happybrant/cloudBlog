@@ -60,7 +60,6 @@ public class CategoryService {
    */
   public ResponseResult<String> addCategory(Category category) {
     ResponseResult<String> result;
-    category.setStatus(BlogConstant.PUBLISH_STATUS);
 
     // 查找当前层级是否有重名分类
     QueryWrapper<Category> queryWrapper = new QueryWrapper<>();

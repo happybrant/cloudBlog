@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kongfu.backend.dao.AccessLogMapper;
 import com.kongfu.backend.model.dto.AccessLogQuery;
 import com.kongfu.backend.model.entity.AccessLog;
-import com.kongfu.backend.util.BlogConstant;
 import com.kongfu.backend.util.BlogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class AccessLogService extends ServiceImpl<AccessLogMapper, AccessLog> {
   @Resource private AccessLogMapper accessLogMapper;
 
   public int addAccessLog(AccessLog accessLog) {
-    accessLog.setStatus(BlogConstant.PUBLISH_STATUS);
     return accessLogMapper.insert(accessLog);
   }
   /**
