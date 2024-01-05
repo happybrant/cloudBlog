@@ -116,6 +116,7 @@ public class ArticleService {
       highlightBuilder.field("title");
       highlightBuilder.field("content");
       highlightBuilder.preTags("<em>").postTags("</em>");
+      highlightBuilder.fragmentSize(20);
       searchSourceBuilder.highlighter(highlightBuilder);
       // 构建查询对象
       boolQuery.must(QueryBuilders.queryStringQuery(keyword));
@@ -125,7 +126,7 @@ public class ArticleService {
       searchSourceBuilder.query(boolQuery);
       // 设置分页信息
       searchSourceBuilder.from(0);
-      searchSourceBuilder.size(5);
+      searchSourceBuilder.size(10);
     }
     searchRequest.source(searchSourceBuilder);
     // 执行搜索,向ES发起http请求

@@ -10,7 +10,7 @@
     <artifactId>backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>backend</name>
-    <description>Backend project for Spring Boot</description>
+    <description>cloudBlog-frontend</description>
 
     <dependencies>
         <dependency>

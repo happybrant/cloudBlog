@@ -111,7 +111,7 @@ public class ArticleController implements BlogConstant {
    * @return
    */
   @PostMapping("/add")
-  @Log(menu = "博客管理", description = "发布/暂存文章")
+  @Log(menu = "博客管理", description = "新增博客")
   public ResponseResult<String> addArticle(@RequestBody Article article) {
     if (article == null) {
       return new ResponseResult<>(ResponseResultCode.ParameterEmpty, "参数为空，操作失败");

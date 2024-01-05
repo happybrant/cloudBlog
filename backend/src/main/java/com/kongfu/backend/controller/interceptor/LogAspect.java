@@ -45,7 +45,14 @@ public class LogAspect {
     // 设置请求Ip
     accessLog.setIp(request.getRemoteAddr());
     // 设置请求参数
-    accessLog.setParams(Arrays.toString(joinPoint.getArgs()));
+    if ("新增笔记".equals(accessLog.getDescription()) || "修改笔记".equals(accessLog.getDescription())) {
+      accessLog.setParams("笔记内容");
+    } else if ("新增博客".equals(accessLog.getDescription())
+        || "修改博客".equals(accessLog.getDescription())) {
+      accessLog.setParams("博客内容");
+    } else {
+      accessLog.setParams(Arrays.toString(joinPoint.getArgs()));
+    }
     logThreadLocal.set(accessLog);
   }
 
