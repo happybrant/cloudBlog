@@ -50,7 +50,6 @@
         <if test="createUser != null">
             and ts_article.create_user = #{createUser}
         </if>
-        order by ts_article.create_time desc
         <if test="pageSize != null and pageSize != 0">
             <choose>
                 <when test="startRow != null">
@@ -66,6 +65,7 @@
         left join tr_article_tag ON ts_article.id = tr_article_tag.article_id
         left join ts_tag ON ts_tag.id = tr_article_tag.tag_id and ts_tag.`status` != 0 or ts_tag.`status` is null
         left join ts_user ON ts_user.id = ts_article.create_user
+        order by ts_article.create_time desc
     </select>
     <!--查找博客总数-->
     <select id="selectArticleCount" resultType="java.lang.Integer"
