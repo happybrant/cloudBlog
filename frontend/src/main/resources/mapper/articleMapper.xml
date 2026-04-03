@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.kongfu.frontend.dao.ArticleMapper">
+<mapper namespace="com.framework.backend.dao.ArticleMapper">
 
     <sql id="selectFields">
         id, title, content, description, status, path,create_time, last_update_time
@@ -13,7 +13,8 @@
     </sql>
 
     <!--分页查找博客-->
-    <select id="selectArticle" resultType="Article" parameterType="ArticleQuery">
+    <select id="selectArticle" resultType="com.framework.backend.entity.Article"
+            parameterType="com.framework.backend.entity.ArticleQuery">
         select article.*, category.path
         from ts_article article left join ts_category category on article.category_id = category.id left join ts_setting
         setting on article.create_user = setting.create_user
@@ -75,7 +76,7 @@
             tag.name = #{tag})
         </if>
     </select>
-    <resultMap id="articleMap" type="Article">
+    <resultMap id="articleMap" type="com.framework.backend.entity.Article">
         <id column="id" property="id"/>
         <result column="title" property="title"/>
         <result column="content" property="content"/>
@@ -84,7 +85,7 @@
         <result column="cover_url" property="coverUrl"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
-        <result column="last_update_time" property="lastUpdateTime"/>
+        <result column="update_time" property="updateTime"/>
         <result column="create_user" property="createUser"/>
         <collection property="tagNames" ofType="java.lang.String">
             <result column="tag_name" property="name"/>
@@ -94,65 +95,43 @@
     <select id="selectArticleById" resultMap="articleMap" parameterType="int">
         select article.*, category.path, tag.name as tag_name
         from ts_article article left join ts_category category on article.category_id = category.id
-        left join tr_article_tag article_tag  ON article.id =  article_tag.article_id LEFT JOIN ts_tag tag ON article_tag.tag_id = tag.id
+        left join tr_article_tag article_tag ON article.id = article_tag.article_id LEFT JOIN ts_tag tag ON
+        article_tag.tag_id = tag.id
         where article.status = 1 and article.id = #{id}
     </select>
     <!--根据router查找博客-->
     <select id="selectArticleByRouter" resultMap="articleMap" parameterType="java.lang.String">
         select article.*, category.path, tag.name as tag_name
         from ts_article article left join ts_category category on article.category_id = category.id
-        left join tr_article_tag article_tag  ON article.id =  article_tag.article_id LEFT JOIN ts_tag tag ON article_tag.tag_id = tag.id
+        left join tr_article_tag article_tag ON article.id = article_tag.article_id LEFT JOIN ts_tag tag ON
+        article_tag.tag_id = tag.id
         LEFT JOIN ts_setting setting ON setting.create_user = article.create_user
         where article.status = 3 and setting.routing = #{router}
     </select>
     <!--插入/添加博客-->
-    <insert id="insertArticle" parameterType="Article" keyProperty="id">
-        insert into ts_article (<include refid="insertFields"></include>)
+    <insert id="insertArticle" parameterType="com.framework.backend.entity.Article" keyProperty="id">
+        insert into ts_article (<include refid="insertFields"/>)
         values(#{title}, #{content}, #{description}, #{categoryId}, 1, now(), now())
     </insert>
     <!--按月对博客进行归档-->
     <select id="selectArticleGroupByMonth" resultType="java.util.Map">
         SELECT
-            A.create_time AS createTime,
-            count( 1 ) AS count
+        A.create_time AS createTime,
+        count( 1 ) AS count
         FROM
-            ( SELECT
-                DATE_FORMAT( article.create_time, '%Y-%m' ) AS create_time
-             FROM
-                `ts_article` AS article
-                LEFT JOIN ts_setting setting ON article.create_user = setting.create_user
-             WHERE
-                article.`status` = 1
-                AND setting.routing = #{router}) AS A
+        ( SELECT
+        DATE_FORMAT( article.create_time, '%Y-%m' ) AS create_time
+        FROM
+        `ts_article` AS article
+        LEFT JOIN ts_setting setting ON article.create_user = setting.create_user
+        WHERE
+        article.`status` = 1
+        AND setting.routing = #{router}) AS A
         GROUP BY
-            A.create_time
+        A.create_time
         ORDER BY createTime DESC
     </select>
-    <select id="selectPreArticleById" parameterType="int" resultType="Article">
-        SELECT  t1.id,t1.title
-        FROM (
-        -- 查询数据添加序号列
-        SELECT @num:=@num+1 AS rownum, ts_article.*
-        FROM ts_article,(SELECT @num:=0) AS r
-        WHERE ts_article.`status` = 1
-        ORDER BY category_id ,create_time DESC
-        )t1,(
-        -- 查询当前记录对应序号
-        SELECT curNum FROM(
-        SELECT @num2:=@num2+1 AS curNum, ts_article.*
-        FROM ts_article ,(SELECT @num2:=0) r2
-        WHERE ts_article.`status` = 1
-        ORDER BY category_id ,create_time DESC
-        )t
-        WHERE id=#{id}
-        )t2
-        WHERE rownum
-        &lt;  curNum
-          ORDER BY rownum DESC
-          LIMIT
-        1
-    </select>
-    <select id="selectNextArticleById" parameterType="int" resultType="Article">
+    <select id="selectPreArticleById" parameterType="int" resultType="com.framework.backend.entity.Article">
         SELECT t1.id,t1.title
         FROM (
         -- 查询数据添加序号列
@@ -170,7 +149,31 @@
         )t
         WHERE id=#{id}
         )t2
-         WHERE rownum &gt; curNum
+        WHERE rownum
+        &lt; curNum
+        ORDER BY rownum DESC
+        LIMIT
+        1
+    </select>
+    <select id="selectNextArticleById" parameterType="int" resultType="com.framework.backend.entity.Article">
+        SELECT t1.id,t1.title
+        FROM (
+        -- 查询数据添加序号列
+        SELECT @num:=@num+1 AS rownum, ts_article.*
+        FROM ts_article,(SELECT @num:=0) AS r
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t1,(
+        -- 查询当前记录对应序号
+        SELECT curNum FROM(
+        SELECT @num2:=@num2+1 AS curNum, ts_article.*
+        FROM ts_article ,(SELECT @num2:=0) r2
+        WHERE ts_article.`status` = 1
+        ORDER BY category_id ,create_time DESC
+        )t
+        WHERE id=#{id}
+        )t2
+        WHERE rownum &gt; curNum
         ORDER BY rownum
         LIMIT 1
     </select>

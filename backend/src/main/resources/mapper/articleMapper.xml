@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.kongfu.backend.dao.ArticleMapper">
+<mapper namespace="com.framework.backend.mapper.ArticleMapper">
 
     <sql id="selectFields">
         ts_article.id, title, content, origin_content, category_id, cover_url,ts_article.description, ts_article.status,
@@ -11,7 +11,7 @@
         ts_user.displayName AS create_username
     </sql>
 
-    <resultMap type="Article" id="articleResultMap">
+    <resultMap type="com.framework.backend.model.entity.Article" id="articleResultMap">
         <id column="id" property="id"/>
         <result column="title" property="title"/>
         <result column="content" property="content"/>
@@ -24,13 +24,14 @@
         <result column="create_time" property="createTime"/>
         <result column="create_user" property="createUser"/>
         <result column="create_username" property="createUsername"/>
-        <collection property="tags" ofType="Tag">
+        <collection property="tags" ofType="com.framework.backend.model.entity.Tag">
             <id column="tag_id" property="id"/>
             <result column="tag_name" property="name"/>
         </collection>
     </resultMap>
     <!--分页查找博客，关联分类查询-->
-    <select id="selectArticleList" parameterType="ArticleQuery" resultMap="articleResultMap">
+    <select id="selectArticleList" parameterType="com.framework.backend.model.dto.ArticleQuery"
+            resultMap="articleResultMap">
         select
         <include refid="selectFields"></include>
         from (select * from ts_article
@@ -69,7 +70,7 @@
     </select>
     <!--查找博客总数-->
     <select id="selectArticleCount" resultType="java.lang.Integer"
-            parameterType="com.kongfu.backend.model.dto.ArticleQuery">
+            parameterType="com.framework.backend.model.dto.ArticleQuery">
         select count(*)
         from ts_article
         where ts_article.`status` in(1,2)
@@ -90,7 +91,7 @@
         </if>
     </select>
     <!--根据博客id查找博客，关联分类和标签-->
-    <select id="selectArticleById" parameterType="com.kongfu.backend.model.dto.ArticleQuery"
+    <select id="selectArticleById" parameterType="com.framework.backend.model.dto.ArticleQuery"
             resultMap="articleResultMap">
         select
         <include refid="selectFields"></include>
@@ -107,7 +108,7 @@
     </select>
 
     <!--根据博客的分类对博客进行分组-->
-    <select id="selectArticleByCategory" parameterType="com.kongfu.backend.model.dto.BaseQuery"
+    <select id="selectArticleByCategory" parameterType="com.framework.backend.model.dto.BaseQuery"
             resultType="java.util.Map">
         SELECT
         SUBSTR( SUBSTRING_INDEX( category.path, '/', 2 ), 2 ) AS CategoryName,
@@ -125,7 +126,8 @@
     </select>
 
     <!--根据博客的标签对博客进行分组-->
-    <select id="selectArticleByTag" parameterType="com.kongfu.backend.model.dto.BaseQuery" resultType="java.util.Map">
+    <select id="selectArticleByTag" parameterType="com.framework.backend.model.dto.BaseQuery"
+            resultType="java.util.Map">
         SELECT
         ts_tag.`name` AS TagName,count(*) AS Count
         FROM

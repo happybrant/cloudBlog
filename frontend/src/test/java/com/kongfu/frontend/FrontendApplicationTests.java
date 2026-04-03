@@ -1,34 +1,33 @@
 package com.kongfu.frontend;
 
-import com.kongfu.frontend.entity.Category;
-import com.kongfu.frontend.entity.Tag;
-import com.kongfu.frontend.service.CategoryService;
-import org.junit.jupiter.api.Test;
+import com.framework.backend.entity.Category;
+import com.framework.backend.entity.Tag;
+import com.framework.backend.service.CategoryService;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SpringBootTest
-class FrontendApplicationTests {
+public class FrontendApplicationTests {
   @Autowired private CategoryService categoryService;
 
   @Test
-  void contextLoads() {
+  public void contextLoads() {
     String test = "/心得体会/C#精通";
     System.out.println(test.split("/")[2]);
   }
 
   @Test
-  void testCount() {
+  public void testCount() {
     List<Category> categories = categoryService.findCategories("dd");
     int i = categoryService.findCategoryCount(categories);
     System.out.println(i);
   }
 
   @Test
-  void deepCopyTest() {
+  public void deepCopyTest() {
     List<Tag> list1 = new ArrayList<>();
     List<Tag> list2 = new ArrayList<>();
     list1.add(new Tag("张三", 12));
